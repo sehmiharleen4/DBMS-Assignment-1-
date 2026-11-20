@@ -178,10 +178,10 @@ We, the members of Group G9, hereby certify that:
 
 ### Signed by Group G9:
 
-* **Harleen Kaur** (`kaurh.it.23@nitj.ac.in`) — Team Lead / Editor  
-* **Gurveer Singh Brar** (`brargs.it.23@nitj.ac.in`) — Literature Lead  
-* **Hardik Jassar** (`jassarh.it.23@nitj.ac.in`) — Implementation Lead  
-* **Harmanparteek Singh** (`singhhp.it.23@nitj.ac.in`) — Analysis Lead  
+* **Harleen Kaur** (`harleenks.it.25@nitj.ac.in`) — Team Lead / Editor  
+* **Gurveer Singh Brar** (`gurveers.it.25@nitj.ac.in`) — Literature Lead  
+* **Hardik Jassal** (`hardikj.it.25@nitj.ac.in`) — Implementation Lead  
+* **Harmanparteek Singh** (`harmanparteeks.it.25@nitj.ac.in`) — Analysis Lead  
 
 **Date:** November 20, 2026  
 **Supervised by:** Dr. Vijay Kumar, Department of Information Technology, NIT Jalandhar
