@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G9: Graph Traversal and Relational Recursion - Presentation</title>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0b0f19 0%, #111827 50%, #0f172a 100%);
+      --card-bg: rgba(30, 41, 59, 0.75);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --card-hover: rgba(51, 65, 85, 0.85);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-cyan: #38bdf8;
+      --accent-blue: #3b82f6;
+      --accent-emerald: #34d399;
+      --accent-amber: #fbbf24;
+      --accent-violet: #a855f7;
+      --accent-coral: #f87171;
+      --code-bg: #090d16;
+      --badge-s1: #38bdf8;
+      --badge-s2: #a855f7;
+      --badge-s3: #34d399;
+      --badge-s4: #fbbf24;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    }
+
+    [data-theme="light"] {
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%);
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(0, 0, 0, 0.08);
+      --card-hover: rgba(241, 245, 249, 0.95);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --code-bg: #f1f5f9;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Presentation Viewport */
+    .presentation-container {
+      width: 100vw;
+      height: 100vh;
+      max-width: 1920px;
+      max-height: 1080px;
+      aspect-ratio: 16 / 9;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: var(--bg-gradient);
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Top Progress Bar */
+    .progress-bar-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      z-index: 100;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 12.5%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue), var(--accent-violet));
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Slide Deck */
+    .slides-wrapper {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      height: calc(100% - 64px);
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 40px 60px 20px 60px;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0;
+      transform: translateY(12px) scale(0.995);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Slide Header Elements */
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 16px;
+    }
+    .header-left {
+      max-width: 72%;
+    }
+    .institution-tag {
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .institution-tag span {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+    }
+    .slide-title {
+      font-size: 2.15rem;
+      font-weight: 800;
+      line-height: 1.2;
+      background: linear-gradient(135deg, #ffffff 30%, var(--accent-cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    [data-theme="light"] .slide-title {
+      background: linear-gradient(135deg, #0f172a 30%, #0369a1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .slide-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Presenter Meta Badge */
+    .presenter-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+    .badge-presenter {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(8px);
+    }
+    .badge-s1 { color: var(--badge-s1); border-color: rgba(56, 189, 248, 0.4); }
+    .badge-s2 { color: var(--badge-s2); border-color: rgba(168, 85, 247, 0.4); }
+    .badge-s3 { color: var(--badge-s3); border-color: rgba(52, 211, 153, 0.4); }
+    .badge-s4 { color: var(--badge-s4); border-color: rgba(251, 191, 36, 0.4); }
+
+    .time-chip {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 3px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+    }
+
+    /* Slide Content Grids */
+    .content-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .grid-1-2 {
+      display: grid;
+      grid-template-columns: 1.1fr 1.9fr;
+      gap: 24px;
+    }
+    .grid-2-1 {
+      display: grid;
+      grid-template-columns: 1.8fr 1.2fr;
+      gap: 24px;
+    }
+
+    /* Cards & Containers */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 22px 24px;
+      backdrop-filter: blur(12px);
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .card:hover {
+      border-color: rgba(56, 189, 248, 0.35);
+      background: var(--card-hover);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-title.cyan { color: var(--accent-cyan); }
+    .card-title.emerald { color: var(--accent-emerald); }
+    .card-title.amber { color: var(--accent-amber); }
+    .card-title.violet { color: var(--accent-violet); }
+    .card-title.coral { color: var(--accent-coral); }
+
+    .card p, .card li {
+      font-size: 0.94rem;
+      line-height: 1.55;
+      color: var(--text-muted);
+    }
+    .card ul {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .card ul li {
+      position: relative;
+      padding-left: 20px;
+    }
+    .card ul li::before {
+      content: "▹";
+      position: absolute;
+      left: 0;
+      color: var(--accent-cyan);
+      font-weight: bold;
+    }
+
+    /* Code Snippets */
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+    .code-keyword { color: #f472b6; font-weight: bold; }
+    .code-func { color: #60a5fa; }
+    .code-param { color: #34d399; }
+    .code-string { color: #fde047; }
+    .code-comment { color: #64748b; font-style: italic; }
+
+    /* Tables */
+    .table-container {
+      width: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      text-align: left;
+    }
+    thead {
+      background: rgba(15, 23, 42, 0.9);
+      border-bottom: 2px solid var(--card-border);
+    }
+    th {
+      padding: 12px 16px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      letter-spacing: 0.02em;
+    }
+    td {
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--card-border);
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-main);
+    }
+    .tag-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .tag-emerald { background: rgba(52, 211, 153, 0.15); color: var(--accent-emerald); border-color: rgba(52, 211, 153, 0.3); }
+    .tag-amber { background: rgba(251, 191, 36, 0.15); color: var(--accent-amber); border-color: rgba(251, 191, 36, 0.3); }
+    .tag-violet { background: rgba(168, 85, 247, 0.15); color: var(--accent-violet); border-color: rgba(168, 85, 247, 0.3); }
+
+    /* Highlight Banner */
+    .banner {
+      background: rgba(56, 189, 248, 0.08);
+      border-left: 4px solid var(--accent-cyan);
+      padding: 12px 18px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .banner.alert {
+      background: rgba(251, 191, 36, 0.08);
+      border-left-color: var(--accent-amber);
+    }
+
+    /* Diagram Containers */
+    .flow-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px 20px;
+    }
+    .flow-node {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 10px 14px;
+      border-radius: 8px;
+      text-align: center;
+      flex: 1;
+      font-size: 0.85rem;
+    }
+    .flow-node strong {
+      display: block;
+      color: var(--accent-cyan);
+      font-size: 0.9rem;
+      margin-bottom: 3px;
+    }
+    .flow-arrow {
+      color: var(--accent-cyan);
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    /* Slide Footer / Navigation Controls */
+    .controls-bar {
+      height: 64px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      border-top: 1px solid var(--card-border);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 50;
+    }
+    .nav-btn-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+    .btn:active {
+      transform: scale(0.97);
+    }
+    .btn.active-toggle {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+    .slide-counter {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+    .slide-counter span {
+      color: var(--accent-cyan);
+    }
+    .keyboard-hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .kbd {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--card-border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: #cbd5e1;
+    }
+
+    /* Speaker Notes Drawer */
+    .speaker-notes-drawer {
+      position: absolute;
+      bottom: 64px;
+      left: 0;
+      width: 100%;
+      height: 240px;
+      background: rgba(11, 15, 25, 0.96);
+      border-top: 2px solid var(--accent-cyan);
+      padding: 20px 40px;
+      overflow-y: auto;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 90;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8);
+    }
+    .speaker-notes-drawer.open {
+      transform: translateY(0);
+    }
+    .notes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .notes-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .notes-content {
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+    .notes-content strong {
+      color: #ffffff;
+    }
+    .notes-content p {
+      margin-bottom: 8px;
+    }
+
+    /* Print / PDF generation rules */
+    @media print {
+      @page {
+        size: 1920px 1080px;
+        margin: 0;
+      }
+      *, *::before, *::after {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      html, body {
+        overflow: visible !important;
+        height: auto !important;
+        background: #0b0f19 !important;
+        color: #f8fafc !important;
+      }
+      .presentation-container {
+        width: 1920px !important;
+        height: auto !important;
+        max-width: none !important;
+        max-height: none !important;
+        overflow: visible !important;
+        box-shadow: none !important;
+        background: #0b0f19 !important;
+      }
+      .progress-bar-container,
+      .controls-bar,
+      .speaker-notes-drawer {
+        display: none !important;
+      }
+      .slides-wrapper {
+        height: auto !important;
+        overflow: visible !important;
+        display: block !important;
+        position: static !important;
+      }
+      .slide {
+        display: flex !important;
+        opacity: 1 !important;
+        transform: none !important;
+        position: relative !important;
+        float: none !important;
+        width: 1920px !important;
+        height: 1080px !important;
+        min-height: 1080px !important;
+        max-height: 1080px !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        padding: 50px 70px !important;
+        box-sizing: border-box !important;
+        background: #0b0f19 !important;
+        overflow: hidden !important;
+      }
+      .card {
+        backdrop-filter: none !important;
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
+      }
+      .code-block {
+        background: #090d16 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="presentation-container" id="presentation">
+    <!-- Top Progress Bar -->
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+
+    <!-- Slides Wrapper -->
+    <div class="slides-wrapper">
+
+      <!-- ================= SLIDE 1: Title & Practical Motivation ================= -->
+      <section class="slide active" id="slide-1" data-presenter="S1 Harleen Kaur" data-role="Team Lead / Editor" data-time="0:00 - 1:15 (75s)">
+        <div class="slide-header">
+          <div class="header-left">
+            <div class="institution-tag"><span></span> Dr B. R. Ambedkar NIT Jalandhar &bull; DBMS Assignment 1 &bull; Group G9</div>
+            <h1 class="slide-title">Graph Traversal vs Relational Recursion</h1>
+            <p class="slide-subtitle">What Published Benchmarks Show &amp; The Architecture of Graph Reachability</p>
+          </div>
+          <div class="presenter-meta">
+            <div class="badge-presenter badge-s1">Speaker: S1 Harleen Kaur</div>
+            <div class="time-chip">Allocated: 75 seconds (0:00 - 1:15)</div>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <div class="grid-2">
+            <!-- Left Card: Real-World Motivation -->
+            <div class="card">
+              <div class="card-title cyan">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                The "People You May Know" Problem
+              </div>
+              <p style="margin-bottom: 12px;">Multi-hop relationship expansion is the central computational primitive in modern connected applications:</p>
+              <ul>
+                <li><strong>Social Recommendations:</strong> Find friends-of-friends ($k=2,3$) while excluding existing friends to rank mutual connections.</li>
+                <li><strong>Anti-Fraud Rings:</strong> Financial institutions trace accounts sharing phone numbers, IP addresses, or device IDs within 3 hops of flagged bad actors.</li>
+                <li><strong>Supply Chain Impact:</strong> Tracing tier-3 and tier-4 supplier component failures propagating up to original equipment manufacturers.</li>
+              </ul>
+              <div class="banner" style="margin-top: 16px;">
+                <strong>Key Traversal Metric:</strong> Bound $k \in \{1, 2, 3, 4\}$ on scale-free graphs where vertex degree follows power-law distributions.
+              </div>
+            </div>
+
+            <!-- Right Card: The Core Tension -->
+            <div class="card">
+              <div class="card-title emerald">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                Two Divergent Database Philosophies
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="background: rgba(56, 189, 248, 0.08); padding: 12px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.2);">
+                  <strong style="color: var(--accent-cyan); display: block; margin-bottom: 4px;">1. Native Graph Stores (Neo4j)</strong>
+                  <p style="font-size: 0.88rem;">Relationships are first-class physical pointers. Employs <em>Index-Free Adjacency (IFA)</em>: neighbors are traversed in $O(1)$ pointer operations independent of total graph edge count.</p>
+                </div>
+                <div style="background: rgba(52, 211, 153, 0.08); padding: 12px; border-radius: 8px; border: 1px solid rgba(52, 211, 153, 0.2);">
+                  <strong style="color: var(--accent-emerald); display: block; margin-bottom: 4px;">2. Relational DBMS (PostgreSQL 16)</strong>
+                  <p style="font-size: 0.88rem;">Adjacency table <code>friendship(src, dst)</code> indexed via $B$-tree. Traversal requires repeated joins ($O(\log |E|)$ per hop) or <code>WITH RECURSIVE</code> CTE iterations.</p>
+                </div>
+              </div>
+              <p style="margin-top: 12px; font-size: 0.88rem; color: #cbd5e1;">
+                <strong>Research Focus:</strong> Do commercial graph claims of "1000x faster traversal" hold when compared against optimized, indexed relational query formulations?
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 10px;">
+          <span>Group G9: Harleen Kaur, Gurveer Singh Brar, Hardik Jassar, Harmanparteek Singh</span>
+          <span>Faculty Mentor: Dr. Vijay Kumar</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 2: Problem Statement & Research Questions ================= -->
+      <section class="slide" id="slide-2" data-presenter="S1 Harleen Kaur" data-role="Team Lead / Editor" data-time="1:15 - 2:30 (75s)">
+        <div class="slide-header">
+          <div class="header-left">
+            <div class="institution-tag"><span></span> Research Framing &amp; Objectives</div>
+            <h1 class="slide-title">Problem Statement &amp; Research Questions</h1>
+            <p class="slide-subtitle">Investigating the Boundary Between Specialized Graph DBMS and Relational Engines</p>
+          </div>
+          <div class="presenter-meta">
+            <div class="badge-presenter badge-s1">Speaker: S1 Harleen Kaur</div>
+            <div class="time-chip">Allocated: 75 seconds (1:15 - 2:30)</div>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <!-- Problem Box -->
+          <div class="card" style="border-left: 4px solid var(--accent-blue);">
+            <div class="card-title cyan" style="margin-bottom: 6px;">The Core Problem Statement</div>
+            <p style="font-size: 1.02rem; color: #f1f5f9; line-height: 1.5;">
+              While graph database vendors claim orders-of-magnitude advantages for multi-hop graph queries, empirical literature reveals highly conflicting results depending on query formulation, caching, and hardware constraints. We investigate what published literature conclusively proves and formulate a rigorous benchmark to isolate these mechanisms.
+            </p>
+          </div>
+
+          <!-- RQ Cards -->
+          <div class="grid-3">
+            <div class="card">
+              <div class="tag-pill" style="align-self: flex-start; margin-bottom: 10px;">RQ1: Data Models &amp; Languages</div>
+              <h4 style="color: var(--text-main); font-size: 1.05rem; margin-bottom: 8px;">Models &amp; Declarative Syntax</h4>
+              <p>How do the Property Graph and RDF models differ structurally and semantically, and how do Cypher, ISO GQL (2024), and SQL/PGQ (2023) express multi-hop traversal?</p>
+              <div style="margin-top: auto; padding-top: 10px; font-size: 0.8rem; color: var(--accent-cyan);">
+                Key focus: Labeled Property Graphs vs Triples &amp; GQL Standardization.
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="tag-pill tag-emerald" style="align-self: flex-start; margin-bottom: 10px;">RQ2: Storage &amp; Joins</div>
+              <h4 style="color: var(--text-main); font-size: 1.05rem; margin-bottom: 8px;">Traversal Mechanics</h4>
+              <p>How do native graph stores eliminate join overhead via Index-Free Adjacency (IFA), and how can relational engines counter this via Recursive CTEs and Level-wise joins?</p>
+              <div style="margin-top: auto; padding-top: 10px; font-size: 0.8rem; color: var(--accent-emerald);">
+                Key focus: Direct pointer chasing vs $B$-Tree index scan loops.
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="tag-pill tag-amber" style="align-self: flex-start; margin-bottom: 10px;">RQ3: Benchmark Synthesis</div>
+              <h4 style="color: var(--text-main); font-size: 1.05rem; margin-bottom: 8px;">Empirical Literature</h4>
+              <p>What do published benchmarks reveal regarding multi-hop latency scaling, and does existing literature answer the specific Neo4j vs PostgreSQL friends-of-friends question?</p>
+              <div style="margin-top: auto; padding-top: 10px; font-size: 0.8rem; color: var(--accent-amber);">
+                Key focus: Kotiranta (2022) &amp; Hohenstein (2019) synthesis.
+              </div>
+            </div>
+          </div>
+
+          <!-- Paper Scope Clarification -->
+          <div class="banner alert">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span><strong>Academic Rigor Note:</strong> This study synthesizes peer-reviewed published benchmark evidence and designs an open, reproducible benchmark suite with an offline-verified SQLite oracle; no unverified group DB timings are claimed.</span>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 10px;">
+          <span>Group G9 &bull; S1 Harleen Kaur</span>
+          <span>Next: Graph Models &amp; Standards (S2 Gurveer Singh Brar)</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 3: Graph Models & Query Languages ================= -->
+      <section class="slide" id="slide-3" data-presenter="S2 Gurveer Singh Brar" data-role="Literature Lead" data-time="2:30 - 3:45 (75s)">
+        <div class="slide-header">
+          <div class="header-left">
+            <div class="institution-tag"><span></span> Background &amp; Standards</div>
+            <h1 class="slide-title">Graph Models &amp; Modern Query Languages</h1>
+            <p class="slide-subtitle">Comparing Property Graphs, RDF, Cypher, ISO GQL (2024), and SQL/PGQ (2023)</p>
+          </div>
+          <div class="presenter-meta">
+            <div class="badge-presenter badge-s2">Speaker: S2 Gurveer Singh Brar</div>
+            <div class="time-chip">Allocated: 75 seconds (2:30 - 3:45)</div>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <div class="grid-2">
+            <!-- Table: Property Graph vs RDF -->
+            <div class="card" style="padding: 16px;">
+              <div class="card-title violet" style="font-size: 1.05rem; margin-bottom: 10px;">
+                Structural Paradigm: Property Graph vs RDF
+              </div>
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Dimension</th>
+                      <th>Property Graph (LPG)</th>
+                      <th>RDF (W3C Standard)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Core Unit</strong></td>
+                      <td>Nodes &amp; Typed Relationships</td>
+                      <td>Subject-Predicate-Object Triples</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Edge Attributes</strong></td>
+                      <td><span class="tag-pill tag-emerald">First-Class</span> Key-Value maps</td>
+                      <td>Requires Reification or RDF-Star</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Identifier Scope</strong></td>
+                      <td>Local 64-bit integer IDs</td>
+                      <td>Global IRIs / URIs</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Query Language</strong></td>
+                      <td>Cypher, ISO GQL, SQL/PGQ</td>
+                      <td>SPARQL 1.1</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Target Workload</strong></td>
+                      <td>High-throughput path traversal</td>
+                      <td>Knowledge integration &amp; inference</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Query Languages & Standards -->
+            <div class="card">
+              <div class="card-title cyan" style="font-size: 1.05rem; margin-bottom: 10px;">
+                The 2023–2024 Standardization Breakthrough
+              </div>
+              <ul style="gap: 12px;">
+                <li>
+                  <strong>Cypher (Neo4j):</strong> Popularized intuitive ASCII-art pattern matching:
+                  <div class="code-block" style="padding: 8px 12px; margin-top: 4px;">
+                    MATCH (p:Person {id: $s})-[:FRIEND*1..3]-(f:Person)
+                  </div>
+                </li>
+                <li>
+                  <strong>ISO/IEC 39075:2024 (GQL):</strong> The first new standalone ISO database language since SQL in 1987. Formalizes declarative pattern matching and graph schema definitions across vendors.
+                </li>
+                <li>
+                  <strong>ISO/IEC 9075-16:2023 (SQL/PGQ):</strong> Standardizes Part 16 of SQL. Embeds property graph matching directly into existing relational tables via <code>GRAPH_TABLE</code>.
+                </li>
+                <li>
+                  <strong>Storage Architecture (Robinson et al.):</strong> Neo4j uses double-linked record lists on disk/memory for Index-Free Adjacency; PostgreSQL relies on indexed join scans.
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="flow-diagram">
+            <div class="flow-node">
+              <strong>Relational Approach</strong>
+              Table <code>friendship(src, dst)</code> &bull; $B$-Tree Lookup $O(\log N)$ &bull; Chained Joins
+            </div>
+            <div class="flow-arrow">VS</div>
+            <div class="flow-node" style="border-color: rgba(56, 189, 248, 0.4);">
+              <strong>Native Graph Store</strong>
+              Direct Memory/Disk Pointer &bull; Double-linked Adjacency &bull; Step Time $O(1)$
+            </div>
+            <div class="flow-arrow">➜</div>
+            <div class="flow-node" style="border-color: rgba(168, 85, 247, 0.4);">
+              <strong>Unified Future (2024+)</strong>
+              ISO GQL &amp; SQL/PGQ bridging relational tables and graph traversal syntax
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 10px;">
+          <span>Group G9 &bull; S2 Gurveer Singh Brar</span>
+          <span>Next: Related Work &amp; Research Gap</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 4: Related Work Matrix & The Research Gap ================= -->
+      <section class="slide" id="slide-4" data-presenter="S2 Gurveer Singh Brar" data-role="Literature Lead" data-time="3:45 - 5:00 (75s)">
+        <div class="slide-header">
+          <div class="header-left">
+            <div class="institution-tag"><span></span> Literature Synthesis &bull; 24 Papers Surveyed</div>
+            <h1 class="slide-title">Related Work Matrix &amp; The Research Gap</h1>
+            <p class="slide-subtitle">Categorizing 24 Peer-Reviewed Studies Across Four Major Database Themes</p>
+          </div>
+          <div class="presenter-meta">
+            <div class="badge-presenter badge-s2">Speaker: S2 Gurveer Singh Brar</div>
+            <div class="time-chip">Allocated: 75 seconds (3:45 - 5:00)</div>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <div class="grid-2-1">
+            <!-- Table of Literature Matrix -->
+            <div class="card" style="padding: 14px;">
+              <div class="card-title cyan" style="font-size: 1rem; margin-bottom: 8px;">
+                Taxonomy of Key Benchmarks &amp; System Studies
+              </div>
+              <div class="table-container" style="max-height: 380px; overflow-y: auto;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Theme</th>
+                      <th>Key References</th>
+                      <th>Core Focus / Finding</th>
+                      <th>Limitation for Our Question</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="tag-pill">Models &amp; Stds</span></td>
+                      <td>Angles (2008), Francis (2018), Deutsch (2022)</td>
+                      <td>Formal semantics of Cypher, GQL, and SQL/PGQ pattern matching</td>
+                      <td>Formal language specifications; no empirical engine benchmarking</td>
+                    </tr>
+                    <tr>
+                      <td><span class="tag-pill tag-violet">Systems</span></td>
+                      <td>Besta et al. (2023), Feng et al. (2023) Kùzu</td>
+                      <td>Taxonomy of graph DBMS storage, CSR/CSC structures, A+ indexes</td>
+                      <td>Surveys or prototype engines; not stock Neo4j 5 vs PostgreSQL 16</td>
+                    </tr>
+                    <tr>
+                      <td><span class="tag-pill tag-emerald">Joins</span></td>
+                      <td>Ngo et al. (2018), Jin et al. (2022)</td>
+                      <td>Worst-Case Optimal Joins &amp; Predefined joins in RDBMS</td>
+                      <td>Requires custom engine kernel modifications; not vanilla PostgreSQL</td>
+                    </tr>
+                    <tr>
+                      <td><span class="tag-pill tag-amber">Benchmarks</span></td>
+                      <td>Pacaci et al. (2017), LDBC SNB (2015, 2022)</td>
+                      <td>Interactive &amp; BI social benchmarks across database engines</td>
+                      <td>Evaluated older versions (Neo4j 2.x); tests entire workloads, not pure $k$-hop reachability</td>
+                    </tr>
+                    <tr>
+                      <td><span class="tag-pill tag-amber">Comparisons</span></td>
+                      <td>Kotiranta (2022), Hohenstein &amp; Jergler (2019)</td>
+                      <td>Neo4j vs MySQL/MariaDB; PostgreSQL fairness &amp; index tuning</td>
+                      <td>Uses invoice data or single-engine tuning; does not test Neo4j vs PostgreSQL on PYMK</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Identified Research Gap -->
+            <div class="card" style="border-left: 4px solid var(--accent-violet);">
+              <div class="card-title violet" style="font-size: 1.05rem; margin-bottom: 10px;">
+                The Identified Research Gap
+              </div>
+              <ul style="gap: 12px; font-size: 0.9rem;">
+                <li>
+                  <strong>Outdated Baselines:</strong> Most published comparisons cite Neo4j 1.x–3.x and MySQL 5.1/5.5, ignoring dramatic query engine optimizations in Neo4j 5.x and PostgreSQL 16.
+                </li>
+                <li>
+                  <strong>Conflating Model with Formulation:</strong> Prior work tests only naive recursive SQL without evaluating level-wise joins or intermediate deduplication.
+                </li>
+                <li>
+                  <strong>Lack of Controlled Container Parity:</strong> Previous tests rarely enforce identical CPU/RAM quotas, warm-up runs, and verified graph seeds under public scripts.
+                </li>
+              </ul>
+              <div class="banner" style="margin-top: 14px; font-size: 0.85rem;">
+                <strong>G9 Resolution:</strong> A fully reproducible benchmark suite comparing 3 query formulations on deterministic Barabási-Albert graphs.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 10px;">
+          <span>Group G9 &bull; S2 Gurveer Singh Brar</span>
+          <span>Next: Proposed Benchmark Architecture (S3 Hardik Jassar)</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 5: Proposed Benchmark Architecture & Methodology ================= -->
+      <section class="slide" id="slide-5" data-presenter="S3 Hardik Jassar" data-role="Implementation Lead" data-time="5:00 - 6:30 (90s)">
+        <div class="slide-header">
+          <div class="header-left">
+            <div class="institution-tag"><span></span> Methodology &amp; Engineering Design</div>
+            <h1 class="slide-title">Proposed Benchmark Architecture &amp; Methodology</h1>
+            <p class="slide-subtitle">Reproducible Pipeline: Barabási-Albert Generator, Containers &amp; 3 Query Formulations</p>
+          </div>
+          <div class="presenter-meta">
+            <div class="badge-presenter badge-s3">Speaker: S3 Hardik Jassar</div>
+            <div class="time-chip">Allocated: 90 seconds (5:00 - 6:30)</div>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <!-- Flow of Architecture -->
+          <div class="flow-diagram" style="margin-bottom: 6px;">
+            <div class="flow-node">
+              <strong>1. BA Generator</strong>
+              Deterministic Seed 42<br>
+              $N \in \{1\text{k}, 10\text{k}, 100\text{k}\}$ ($m=5$)
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-node">
+              <strong>2. CSV Artifacts</strong>
+              <code>persons.csv</code><br>
+              <code>friendships.csv</code><br>
+              <code>starts.csv</code> (30 rand, 5 hub)
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-node" style="border-color: rgba(56, 189, 248, 0.4);">
+              <strong>3. Docker Isolation</strong>
+              PG 16 (shared_buffers=2GB)<br>
+              Neo4j 5.26 (heap=2GB, pc=2GB)<br>
+              4 vCPU &bull; 6 GB RAM Limit
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-node" style="border-color: rgba(52, 211, 153, 0.4);">
+              <strong>4. Python Harness</strong>
+              Warm-up Run (rep 0)<br>
+              5 Timed Reps &bull; 60s Timeout<br>
+              Median &amp; p95 Latency
+            </div>
+          </div>
+
+          <!-- Query Formulations Grid -->
+          <div class="grid-3">
+            <!-- Formulation A: Recursive CTE -->
+            <div class="card">
+              <div class="tag-pill" style="align-self: flex-start; margin-bottom: 6px;">Formulation A: PostgreSQL CTE</div>
+              <h4 style="color: var(--text-main); font-size: 0.95rem;">Recursive CTE with UNION</h4>
+              <div class="code-block" style="font-size: 0.73rem;">
+<span class="code-keyword">WITH RECURSIVE</span> r(id, depth) <span class="code-keyword">AS</span> (
+  <span class="code-keyword">SELECT</span> dst, 1 <span class="code-keyword">FROM</span> friendship
+  <span class="code-keyword">WHERE</span> src = <span class="code-param">:s</span>
+  <span class="code-keyword">UNION</span>
+  <span class="code-keyword">SELECT</span> f.dst, r.depth + 1
+  <span class="code-keyword">FROM</span> r <span class="code-keyword">JOIN</span> friendship f <span class="code-keyword">ON</span> f.src = r.id
+  <span class="code-keyword">WHERE</span> r.depth &lt; <span class="code-param">:k</span>
+)
+<span class="code-keyword">SELECT</span> <span class="code-func">count</span>(<span class="code-keyword">DISTINCT</span> id) <span class="code-keyword">FROM</span> r
+<span class="code-keyword">WHERE</span> id &lt;&gt; <span class="code-param">:s</span>;
+              </div>
+              <p style="font-size: 0.8rem; margin-top: 6px;"><code>UNION</code> removes duplicate <code>(id, depth)</code> tuples to halt cycle infinite recursion.</p>
+            </div>
+
+            <!-- Formulation B: Level-wise Joins -->
+            <div class="card">
+              <div class="tag-pill tag-emerald" style="align-self: flex-start; margin-bottom: 6px;">Formulation B: Level-Wise Joins</div>
+              <h4 style="color: var(--text-main); font-size: 0.95rem;">Chained Joins with Intermediate Deduplication</h4>
+              <div class="code-block" style="font-size: 0.73rem;">
+<span class="code-keyword">WITH</span>
+l1 <span class="code-keyword">AS</span> (<span class="code-keyword">SELECT DISTINCT</span> dst <span class="code-keyword">FROM</span> friendship <span class="code-keyword">WHERE</span> src = <span class="code-param">:s</span>),
+l2 <span class="code-keyword">AS</span> (<span class="code-keyword">SELECT DISTINCT</span> f.dst <span class="code-keyword">FROM</span> l1
+       <span class="code-keyword">JOIN</span> friendship f <span class="code-keyword">ON</span> f.src = l1.id),
+l3 <span class="code-keyword">AS</span> (<span class="code-keyword">SELECT DISTINCT</span> f.dst <span class="code-keyword">FROM</span> l2
+       <span class="code-keyword">JOIN</span> friendship f <span class="code-keyword">ON</span> f.src = l2.id)
+<span class="code-keyword">SELECT</span> <span class="code-func">count</span>(*) <span class="code-keyword">FROM</span> (
+  <span class="code-keyword">SELECT</span> id <span class="code-keyword">FROM</span> l1 <span class="code-keyword">UNION</span>
+  <span class="code-keyword">SELECT</span> id <span class="code-keyword">FROM</span> l2 <span class="code-keyword">UNION</span>
+  <span class="code-keyword">SELECT</span> id <span class="code-keyword">FROM</span> l3
+) u <span class="code-keyword">WHERE</span> id &lt;&gt; <span class="code-param">:s</span>;
+              </div>
+              <p style="font-size: 0.8rem; margin-top: 6px;">Prunes intermediate frontiers at each level, preventing combinatorial explosion.</p>
+            </div>
+
+            <!-- Formulation C: Cypher -->
+            <div class="card">
+              <div class="tag-pill tag-amber" style="align-self: flex-start; margin-bottom: 6px;">Formulation C: Neo4j Cypher</div>
+              <h4 style="color: var(--text-main); font-size: 0.95rem;">Variable-Length Traversal Pattern</h4>
+              <div class="code-block" style="font-size: 0.73rem;">
+<span class="code-keyword">MATCH</span> (p:Person {id: <span class="code-param">$s</span>})
+      -[:FRIEND*1..<span class="code-param">3</span>]-(f:Person)
+<span class="code-keyword">WHERE</span> f &lt;&gt; p
+<span class="code-keyword">RETURN</span> <span class="code-func">count</span>(<span class="code-keyword">DISTINCT</span> f) <span class="code-keyword">AS</span> c;
+              </div>
+              <p style="font-size: 0.8rem; margin-top: 6px; line-height: 1.4;">
+                Traverses relationships via Index-Free Adjacency pointers. Note: Cypher's relationship uniqueness can enumerate paths unless optimized by the query planner.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 10px;">
+          <span>Group G9 &bull; S3 Hardik Jassar</span>
+          <span>Next: Correctness Verification &amp; Controls</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 6: Correctness Verification & Experimental Controls ================= -->
+      <section class="slide" id="slide-6" data-presenter="S3 Hardik Jassar" data-role="Implementation Lead" data-time="6:30 - 7:30 (60s)">
+        <div class="slide-header">
+          <div class="header-left">
+            <div class="institution-tag"><span></span> Verification &amp; Scientific Controls</div>
+            <h1 class="slide-title">Correctness Verification &amp; Experimental Controls</h1>
+            <p class="slide-subtitle">SQLite BFS Oracle Passing 136/136 Checks &amp; Strict Resource Isolation</p>
+          </div>
+          <div class="presenter-meta">
+            <div class="badge-presenter badge-s3">Speaker: S3 Hardik Jassar</div>
+            <div class="time-chip">Allocated: 60 seconds (6:30 - 7:30)</div>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <div class="grid-2">
+            <!-- Left Card: Correctness Oracle -->
+            <div class="card" style="border-left: 4px solid var(--accent-emerald);">
+              <div class="card-title emerald">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                The BFS Ground-Truth Oracle
+              </div>
+              <p style="margin-bottom: 12px;">Before evaluating timing, all query formulations were validated against an independent mathematical oracle (<code>code/selftest.py</code>):</p>
+              <ul>
+                <li><strong>Baseline Generator:</strong> Deterministic Barabási-Albert graph ($N=600, m=3$, 1,791 edges).</li>
+                <li><strong>Reference Implementation:</strong> Independent Python BFS using <code>collections.deque</code> with strict visit tracking.</li>
+                <li><strong>Validation Scope:</strong> Tested all 4 depths ($k \in \{1, 2, 3, 4\}$) across 17 seed vertices (every 37th node) for both CTE and Level-wise queries.</li>
+                <li><strong>Result:</strong> <strong style="color: var(--accent-emerald);">136 / 136 checks passing</strong> with exact count parity ($0$ discrepancies). Proves query semantic equivalence!</li>
+              </ul>
+              <div class="code-block" style="font-size: 0.75rem; margin-top: 10px;">
+$ python code/selftest.py
+selftest OK: 136 query results match the BFS oracle (n=600, edges=1791)
+              </div>
+            </div>
+
+            <!-- Right Card: Experimental Controls -->
+            <div class="card">
+              <div class="card-title cyan">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                Strict Experimental Controls
+              </div>
+              <ul style="gap: 12px;">
+                <li>
+                  <strong>Symmetrical Modeling:</strong> Undirected edges stored as two directed rows in PostgreSQL with clustered composite Primary Key <code>(src, dst)</code>. Stored once in Neo4j with bidirectional traversal.
+                </li>
+                <li>
+                  <strong>Resource Quotas:</strong> Pinned CPU cores (4 cores) and memory ceilings (6 GB) in Docker Compose to eliminate noisy-neighbor hardware bias.
+                </li>
+                <li>
+                  <strong>Cache Warm-Up:</strong> Mandatory untimed warm-up execution per (depth, start) pair prior to 5 timed repetitions to stabilize buffer pool / pagecache.
+                </li>
+                <li>
+                  <strong>Statistical Metrics:</strong> Latency recorded at Median and p95; strict 60s statement timeout to trap runaway Cartesian expansions.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 10px;">
+          <span>Group G9 &bull; S3 Hardik Jassar</span>
+          <span>Next: Empirical Results &amp; Synthesis (S4 Harmanparteek Singh)</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 7: Results from Published Benchmarks & Empirical Synthesis ================= -->
+      <section class="slide" id="slide-7" data-presenter="S4 Harmanparteek Singh" data-role="Analysis Lead" data-time="7:30 - 9:00 (90s)">
+        <div class="slide-header">
+          <div class="header-left">
+            <div class="institution-tag"><span></span> Empirical Synthesis &bull; Section VI Analysis</div>
+            <h1 class="slide-title">Results from Published Benchmarks &amp; Synthesis</h1>
+            <p class="slide-subtitle">Dissecting Kotiranta (2022) &amp; Hohenstein (2019): Why Rankings are Workload-Dependent</p>
+          </div>
+          <div class="presenter-meta">
+            <div class="badge-presenter badge-s4">Speaker: S4 Harmanparteek Singh</div>
+            <div class="time-chip">Allocated: 90 seconds (7:30 - 9:00)</div>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <div class="grid-2">
+            <!-- Study 1: Kotiranta 2022 -->
+            <div class="card">
+              <div class="card-title cyan" style="font-size: 1.05rem;">
+                Kotiranta et al. (Applied Sciences 2022)
+              </div>
+              <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px;">
+                Evaluated Neo4j 4.4.8 Community vs MySQL 8.0.29 &amp; MariaDB 10.8.3 on invoice graphs:
+              </p>
+              <div class="table-container" style="margin-bottom: 10px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Workload Task</th>
+                      <th>Relational Result</th>
+                      <th>Neo4j Result</th>
+                      <th>Winner</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Simple Traversals</td>
+                      <td>Moderate latency</td>
+                      <td>$\sim 3\times$ faster</td>
+                      <td><span class="tag-pill tag-emerald">Neo4j</span></td>
+                    </tr>
+                    <tr>
+                      <td>Aggregate Analytics</td>
+                      <td>MariaDB fast</td>
+                      <td>$29\times$ slower</td>
+                      <td><span class="tag-pill">MariaDB</span></td>
+                    </tr>
+                    <tr>
+                      <td>Recursive Chain (N=100)</td>
+                      <td>$\sim 1\text{ ms}$</td>
+                      <td>$42\text{ ms}$</td>
+                      <td><span class="tag-pill">Relational</span></td>
+                    </tr>
+                    <tr>
+                      <td>Recursive Chain (N=10k)</td>
+                      <td>$10\text{ ms}$ (MariaDB)</td>
+                      <td>&gt;1000x slower</td>
+                      <td><span class="tag-pill">MySQL/Maria</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p style="font-size: 0.82rem; color: #cbd5e1;">
+                <strong>Takeaway:</strong> Neo4j excelled on unstructured traversal; relational engines dominated linear recursion and aggregation.
+              </p>
+            </div>
+
+            <!-- Study 2: Hohenstein 2019 & Hypothesis Verdicts -->
+            <div class="card">
+              <div class="card-title amber" style="font-size: 1.05rem;">
+                Hohenstein &amp; Jergler (2019) &amp; Hypotheses
+              </div>
+              <div style="background: rgba(251, 191, 36, 0.08); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(251, 191, 36, 0.2); margin-bottom: 10px;">
+                <strong style="color: var(--accent-amber); font-size: 0.88rem;">Index Sensitivity on 5-Hop Traversal:</strong>
+                <p style="font-size: 0.82rem; margin-top: 4px;">
+                  PostgreSQL tested on 500,000 nodes (50 edges/node). Latency dropped from <strong>60.25 s</strong> without an index to <strong>6.43 s</strong> with an index on warm run (>9x speedup)!
+                </p>
+              </div>
+              <div style="font-size: 0.88rem; font-weight: 700; color: #ffffff; margin-bottom: 6px;">
+                Literature Verdicts on Hypotheses H1–H4:
+              </div>
+              <ul style="font-size: 0.82rem; gap: 6px;">
+                <li><strong style="color: var(--accent-cyan);">H1 ($k=1$ parity): Supported.</strong> B-tree root lookup is comparable to IFA pointer dereference for single hops.</li>
+                <li><strong style="color: var(--accent-coral);">H2 (CTE latency growth): Supported.</strong> Naive recursive CTEs suffer from cycle re-expansion without intermediate pruning.</li>
+                <li><strong style="color: var(--accent-emerald);">H3 (Level-wise mitigation): Supported.</strong> Chained joins with intermediate <code>DISTINCT</code> prune frontier explosion.</li>
+                <li><strong style="color: var(--accent-amber);">H4 (Hub degradation): Supported.</strong> High-degree roots trigger massive frontier fan-outs across all database engines.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="banner">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 14 14"></polyline></svg>
+            <span><strong>Critical Synthesis:</strong> Published metrics demonstrate that database rankings are <em>workload-dependent</em>, not universal. Neither engine holds an unconditional superiority across all graph queries.</span>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 10px;">
+          <span>Group G9 &bull; S4 Harmanparteek Singh</span>
+          <span>Next: Threats to Validity &amp; Conclusions</span>
+        </div>
+      </section>
+
+      <!-- ================= SLIDE 8: Threats to Validity, Conclusions & Future Work ================= -->
+      <section class="slide" id="slide-8" data-presenter="S4 Harmanparteek Singh" data-role="Analysis Lead" data-time="9:00 - 10:00 (60s)">
+        <div class="slide-header">
+          <div class="header-left">
+            <div class="institution-tag"><span></span> Critical Evaluation &bull; Conclusions</div>
+            <h1 class="slide-title">Threats to Validity, Conclusions &amp; Future Work</h1>
+            <p class="slide-subtitle">Summary of Findings, Experimental Limitations &amp; Next Research Horizons</p>
+          </div>
+          <div class="presenter-meta">
+            <div class="badge-presenter badge-s4">Speaker: S4 Harmanparteek Singh</div>
+            <div class="time-chip">Allocated: 60 seconds (9:00 - 10:00)</div>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <div class="grid-2">
+            <!-- Left Card: Threats to Validity -->
+            <div class="card" style="border-left: 4px solid var(--accent-coral);">
+              <div class="card-title coral">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                Threats to Validity
+              </div>
+              <ul style="gap: 10px;">
+                <li>
+                  <strong>Internal Validity (Cache Effects):</strong> In-memory warm cache benchmarks favor engines with low pointer overhead; cold storage I/O paging patterns may tell an entirely different story.
+                </li>
+                <li>
+                  <strong>Synthetic vs Real Topologies:</strong> Barabási-Albert reproduces degree skew (power law) but underestimates the high clustering coefficients and community triadic closures of real social networks.
+                </li>
+                <li>
+                  <strong>Query Semantics:</strong> We evaluate <em>reachability count</em> (distinct vertices). A path-returning query forces combinatorial path enumeration ($d^k$), shifting the cost profile.
+                </li>
+              </ul>
+            </div>
+
+            <!-- Right Card: Conclusions & Future Work -->
+            <div class="card" style="border-left: 4px solid var(--accent-emerald);">
+              <div class="card-title emerald">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Conclusions &amp; Future Work
+              </div>
+              <ul style="gap: 10px;">
+                <li>
+                  <strong>No Universal Superiority:</strong> Index-Free Adjacency is advantageous for unbounded graph explorations, but modern indexed relational engines match or surpass it on bounded recursive queries and aggregations.
+                </li>
+                <li>
+                  <strong>Formulation Matters Most:</strong> Relational performance depends critically on query design (level-wise deduplication beats naive CTEs).
+                </li>
+                <li>
+                  <strong>Immediate Next Step:</strong> Execute the containerized benchmark suite on bare-metal hardware and record live <code>EXPLAIN ANALYZE</code> execution plans.
+                </li>
+                <li>
+                  <strong>Standards Horizon:</strong> Benchmark the emerging ISO SQL:2023 Part 16 (SQL/PGQ) when native PostgreSQL implementations stabilize.
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Bottom Thank You / Q&A Banner -->
+          <div class="card" style="padding: 14px 24px; background: rgba(56, 189, 248, 0.08); border-color: rgba(56, 189, 248, 0.3); display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
+            <div>
+              <h3 style="color: #ffffff; font-size: 1.15rem; margin-bottom: 2px;">Thank You! We are Ready for the Viva &amp; Questions</h3>
+              <p style="font-size: 0.88rem; color: var(--text-muted);">Repository &amp; Reproducible Kit: <code>github.com/pritansh07/G9-DBMS-Assignment-1</code></p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <span class="tag-pill">S1 Harleen</span>
+              <span class="tag-pill tag-violet">S2 Gurveer</span>
+              <span class="tag-pill tag-emerald">S3 Hardik</span>
+              <span class="tag-pill tag-amber">S4 Harmanparteek</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 10px;">
+          <span>Group G9 &bull; S4 Harmanparteek Singh</span>
+          <span>Concluding Slide &bull; Total Talk Time: 10:00</span>
+        </div>
+      </section>
+
+    </div><!-- End Slides Wrapper -->
+
+    <!-- Speaker Notes Drawer -->
+    <div class="speaker-notes-drawer" id="speakerNotesDrawer">
+      <div class="notes-header">
+        <div class="notes-title" id="notesSpeaker">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+          Speaker Script &amp; Cues
+        </div>
+        <div class="keyboard-hint">Press <span class="kbd">N</span> to close notes</div>
+      </div>
+      <div class="notes-content" id="notesContent">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+    <!-- Bottom Controls Bar -->
+    <div class="controls-bar">
+      <div class="nav-btn-group">
+        <button class="btn" id="prevBtn" title="Previous Slide (Left Arrow)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          Prev
+        </button>
+        <button class="btn" id="nextBtn" title="Next Slide (Right Arrow / Space)">
+          Next
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+        <div class="slide-counter" id="slideCounter">Slide <span>1</span> of 8</div>
+      </div>
+
+      <div class="keyboard-hint">
+        Navigate: <span class="kbd">←</span> <span class="kbd">→</span> or <span class="kbd">Space</span> &bull; Notes: <span class="kbd">N</span> &bull; Fullscreen: <span class="kbd">F</span> &bull; Theme: <span class="kbd">T</span> &bull; Print: <span class="kbd">P</span>
+      </div>
+
+      <div class="nav-btn-group">
+        <button class="btn" id="notesToggleBtn" title="Toggle Speaker Script">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          Notes (N)
+        </button>
+        <button class="btn" id="themeToggleBtn" title="Toggle Light / Dark Theme">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </button>
+        <button class="btn" id="fullscreenBtn" title="Toggle Fullscreen">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Speaker Scripts mapped to each slide (from TALK_SCRIPT.md & assignment requirements)
+    const speakerScripts = {
+      1: {
+        speaker: "S1 Harleen Kaur (0:00 - 1:15, 75s)",
+        script: `<p><strong>Spoken Script:</strong> "Good morning esteemed faculty mentor Dr. Vijay Kumar and classmates. I am Harleen Kaur presenting for Group G9 on 'Graph Traversal and Relational Recursion: What Published Benchmarks Show'.</p>
+        <p>Our practical motivation begins with the classic 'People You May Know' recommendation engine used by social platforms. To suggest new contacts, the database begins with a user, retrieves that user's friends, then retrieves friends-of-friends up to $k$ hops, and ranks the candidates. The same pattern is foundational in anti-fraud detection to trace accounts sharing IP addresses or devices within 3 hops of a compromised node, and in supply-chain traceability.</p>
+        <p>This problem creates an architectural divergence: Graph databases like Neo4j champion <em>Index-Free Adjacency</em>, following physical pointers directly between nodes in $O(1)$ operations. Meanwhile, relational engines like PostgreSQL represent relationships as rows in an edge table indexed by B-trees, employing recursive Common Table Expressions or multi-way joins. We investigate whether the claimed graph database superiority holds against well-indexed relational recursion."</p>`
+      },
+      2: {
+        speaker: "S1 Harleen Kaur (1:15 - 2:30, 75s)",
+        script: `<p><strong>Spoken Script:</strong> "Moving to our research framing on Slide 2. Vendor whitepapers often boast 1000-fold speedups, yet academic literature presents a much more nuanced reality.</p>
+        <p>Our paper investigates three research questions: First, <strong>RQ1</strong> examines how the Property Graph and RDF data models differ structurally and semantically, and how Cypher, the new ISO GQL standard of 2024, and SQL/PGQ express graph patterns. Second, <strong>RQ2</strong> asks how native graph stores mechanically avoid costly joins via Index-Free Adjacency, and what relational mechanisms—such as recursive CTEs, level-wise joins, and predefined joins—allow an RDBMS to respond. Third, <strong>RQ3</strong> investigates what published peer-reviewed benchmarks actually report across traversal depth, graph size, and degree skew, and whether existing literature answers our specific Neo4j vs PostgreSQL friends-of-friends reachability question.</p>
+        <p>Importantly, as a matter of academic integrity, our paper synthesizes peer-reviewed published studies and contributes a fully reproducible benchmark suite and an offline-verified SQLite oracle; we do not claim unverified local database performance runs."</p>`
+      },
+      3: {
+        speaker: "S2 Gurveer Singh Brar (2:30 - 3:45, 75s)",
+        script: `<p><strong>Spoken Script:</strong> "Hello everyone, I am Gurveer Singh Brar, and I will address RQ1 and our theoretical foundations on Slide 3.</p>
+        <p>In data modeling, a <strong>Property Graph</strong> consists of labeled nodes and directed, typed relationships, where both entities carry arbitrary key-value properties. In contrast, <strong>RDF</strong> decomposes all data into elementary Subject-Predicate-Object triples. While RDF excels at open-world semantic data integration with global IRIs, attaching attributes to relationships requires reification or RDF-Star, whereas Property Graphs treat edge properties natively.</p>
+        <p>On the query language front, Cypher introduced ASCII-art pattern matching, which inspired two major international milestones: <strong>ISO GQL (2024)</strong>, the first standalone ISO database standard since SQL, and <strong>SQL/PGQ (2023)</strong>, which integrates graph pattern queries directly into SQL tables. Under the hood, Neo4j uses Index-Free Adjacency, storing double-linked pointer lists for each vertex, making traversal step time independent of total edge count, whereas PostgreSQL must perform index scans over B-tree leaf nodes."</p>`
+      },
+      4: {
+        speaker: "S2 Gurveer Singh Brar (3:45 - 5:00, 75s)",
+        script: `<p><strong>Spoken Script:</strong> "On Slide 4, we present our comprehensive Related Work matrix synthesizing 24 foundational papers across four research themes.</p>
+        <p>In <em>Models & Languages</em>, we analyzed works from Angles, Francis, and Deutsch. In <em>Systems</em>, Besta et al.'s 2023 taxonomy and Kùzu provide deep architectural perspectives. In <em>Relational Innovations</em>, Ngo et al.'s Worst-Case Optimal Joins and Jin et al.'s Predefined Joins demonstrate relational graph enhancements. In <em>Benchmarks</em>, we surveyed Pacaci, LDBC SNB, Hohenstein, and Kotiranta.</p>
+        <p>Our literature survey revealed a critical <strong>Research Gap</strong>: Most existing benchmarks evaluate obsolete DBMS versions such as Neo4j 1.x or MySQL 5.1. Furthermore, they frequently conflate the data model with query formulation—testing a naive recursive CTE without indexing or intermediate deduplication. We identified a total lack of reproducible, container-isolated benchmarks directly contrasting Neo4j 5 against PostgreSQL 16 on pure friends-within-$k$-hops reachability."</p>`
+      },
+      5: {
+        speaker: "S3 Hardik Jassar (5:00 - 6:30, 90s)",
+        script: `<p><strong>Spoken Script:</strong> "Good day, I am Hardik Jassar, and I will present our proposed benchmark architecture and methodology on Slide 5.</p>
+        <p>To fill the identified research gap, we engineered a completely reproducible experimental pipeline. First, our generator produces deterministic Barabási-Albert graphs using preferential attachment with seed 42 at 1,000, 10,000, and 100,000 persons, with $m=5$ edges added per person. This realistically models the power-law degree distributions and hub nodes characteristic of human social networks.</p>
+        <p>Second, we isolate both engines in Docker containers with strictly matched quotas: 4 vCPUs and 6 GB RAM, allocating 2 GB to PostgreSQL's shared buffers and 2 GB heap plus 2 GB page cache to Neo4j. Third, we formulated three distinct queries for the exact same reachability-count semantics: Formulation A is the textbook recursive CTE using UNION to prevent cycle loops. Formulation B is our hand-crafted level-wise join query, which applies DISTINCT at every single hop to eliminate combinatorial explosion in intermediate frontiers. Formulation C is Neo4j Cypher's variable-length traversal."</p>`
+      },
+      6: {
+        speaker: "S3 Hardik Jassar (6:30 - 7:30, 60s)",
+        script: `<p><strong>Spoken Script:</strong> "Continuing to Slide 6, I will discuss our correctness verification and experimental controls.</p>
+        <p>Before any timing analysis, we had to ensure absolute semantic equivalence. In <code>code/selftest.py</code>, we implemented an offline mathematical verification harness using SQLite and Python's <code>collections.deque</code> BFS. Across 17 seed vertices, 4 traversal depths, and both SQL formulations on a 600-node graph, our test ran 136 automated query checks. All <strong>136 out of 136 queries matched the BFS oracle exactly</strong>, with zero count discrepancies.</p>
+        <p>For scientific control, PostgreSQL stores friendships symmetrically as two directed rows with a composite primary key on <code>(src, dst)</code>, creating an immediate covering B-tree index. Neo4j stores each edge once with bidirectional traversal. Every query undergoes an untimed warm-up execution to saturate buffer caches before recording 5 timed repetitions, and we enforce a strict 60-second timeout."</p>`
+      },
+      7: {
+        speaker: "S4 Harmanparteek Singh (7:30 - 9:00, 90s)",
+        script: `<p><strong>Spoken Script:</strong> "Greetings, I am Harmanparteek Singh, presenting our empirical synthesis and Section VI results on Slide 7.</p>
+        <p>Because local DB runs are proposed work, we synthesized the findings of key published peer-reviewed studies. In the 2022 study by Kotiranta et al. comparing Neo4j 4.4 with MySQL and MariaDB on invoice datasets, Neo4j was approximately 3 times faster on simple traversals. However, on aggregation tasks, MariaDB was <strong>29 times faster</strong> than Neo4j. In their recursive invoice chain, relational engines took just 1 ms at 100 entities compared to Neo4j's 42 ms; at 10,000 entities, MySQL was over 1,000 times faster.</p>
+        <p>Complementing this, Hohenstein and Jergler's 2019 study showed that for a 5-hop path query on 500,000 nodes, indexing reduced PostgreSQL latency from 60.25 seconds down to 6.43 seconds. Synthesizing these against our hypotheses: H1 on $k=1$ parity is supported because initial index lookups are negligible; H2 on CTE explosion is supported for naive CTEs, but H3 is validated because level-wise joins mitigate this; and H4 is confirmed as hub nodes massively expand the search frontier across all engines."</p>`
+      },
+      8: {
+        speaker: "S4 Harmanparteek Singh (9:00 - 10:00, 60s)",
+        script: `<p><strong>Spoken Script:</strong> "Finally, on Slide 8, I will cover threats to validity, conclusions, and future directions.</p>
+        <p>In terms of validity: First, internal cache warmth heavily influences pointer-chasing benchmarks. Second, synthetic Barabási-Albert graphs exhibit power-law skew but underestimate triadic closure and clustering found in real networks. Third, our query measures distinct reachability count rather than path enumeration, which would heavily penalize relational engines due to path duplication.</p>
+        <p>In conclusion: There is no universal database champion. Index-Free Adjacency is powerful for deep traversals, but relational engines remain fiercely competitive when queries are carefully indexed and formulated with level-wise deduplication. Published benchmark numbers cannot be naively generalized across disparate systems. As future work, we plan to execute the container suite on bare-metal hardware and evaluate ISO SQL/PGQ as PostgreSQL implementations mature. Thank you, and we welcome your questions!"</p>`
+      }
+    };
+
+    let currentSlide = 1;
+    const totalSlides = 8;
+    const slides = document.querySelectorAll('.slide');
+    const progressBar = document.getElementById('progressBar');
+    const slideCounter = document.getElementById('slideCounter');
+    const notesDrawer = document.getElementById('speakerNotesDrawer');
+    const notesContent = document.getElementById('notesContent');
+    const notesSpeaker = document.getElementById('notesSpeaker');
+    const notesToggleBtn = document.getElementById('notesToggleBtn');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+    function updateSlide(newSlide) {
+      if (newSlide < 1 || newSlide > totalSlides) return;
+      
+      slides.forEach(s => s.classList.remove('active'));
+      currentSlide = newSlide;
+      
+      const activeEl = document.getElementById(`slide-${currentSlide}`);
+      activeEl.classList.add('active');
+
+      // Update Progress Bar
+      const pct = (currentSlide / totalSlides) * 100;
+      progressBar.style.width = `${pct}%`;
+
+      // Update Counter
+      slideCounter.innerHTML = `Slide <span>${currentSlide}</span> of ${totalSlides}`;
+
+      // Update Notes Drawer Content
+      if (speakerScripts[currentSlide]) {
+        notesSpeaker.innerHTML = `
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+          Speaker Script: ${speakerScripts[currentSlide].speaker}
+        `;
+        notesContent.innerHTML = speakerScripts[currentSlide].script;
+      }
+    }
+
+    function toggleNotes() {
+      notesDrawer.classList.toggle('open');
+      notesToggleBtn.classList.toggle('active-toggle');
+    }
+
+    function toggleTheme() {
+      const isLight = document.body.getAttribute('data-theme') === 'light';
+      document.body.setAttribute('data-theme', isLight ? 'dark' : 'light');
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    // Event Listeners
+    document.getElementById('prevBtn').addEventListener('click', () => updateSlide(currentSlide - 1));
+    document.getElementById('nextBtn').addEventListener('click', () => updateSlide(currentSlide + 1));
+    notesToggleBtn.addEventListener('click', toggleNotes);
+    themeToggleBtn.addEventListener('click', toggleTheme);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+    // Keyboard Navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        updateSlide(currentSlide + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'Backspace' || e.key === 'PageUp') {
+        e.preventDefault();
+        updateSlide(currentSlide - 1);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        updateSlide(1);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        updateSlide(totalSlides);
+      } else if (e.key.toLowerCase() === 'n') {
+        e.preventDefault();
+        toggleNotes();
+      } else if (e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        toggleFullscreen();
+      } else if (e.key.toLowerCase() === 't') {
+        e.preventDefault();
+        toggleTheme();
+      } else if (e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        window.print();
+      }
+    });
+
+    // Initialize
+    updateSlide(1);
+  </script>
+</body>
+</html>
