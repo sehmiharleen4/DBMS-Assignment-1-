@@ -16,7 +16,7 @@ The repository uses deterministic Barabasi-Albert graph generation. No real pers
 
 - Harleen Kaur
 - Gurveer Singh Brar
-- Hardik Jassar
+- Hardik Jassal
 - Harmanparteek Singh
 - Faculty mentor: Dr. Vijay Kumar
 

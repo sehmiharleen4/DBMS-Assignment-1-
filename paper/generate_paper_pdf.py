@@ -226,12 +226,12 @@ html_content = """<!DOCTYPE html>
 
 <div class="header-block">
   <h1 class="paper-title">Graph Traversal and Relational Recursion: Theoretical Complexity, Query Optimization, and Empirical Synthesis</h1>
-  <div class="authors">Harleen Kaur, Gurveer Singh Brar, Hardik Jassar, and Harmanparteek Singh</div>
+  <div class="authors">Harleen Kaur, Gurveer Singh Brar, Hardik Jassal, and Harmanparteek Singh</div>
   <div class="affiliation">
     <em>Department of Information Technology</em><br>
     <em>Dr. B. R. Ambedkar National Institute of Technology Jalandhar</em>, Punjab, India
   </div>
-  <div class="email">Email: {kaurh.it.23, brargs.it.23, jassarh.it.23, singhhp.it.23}@nitj.ac.in</div>
+  <div class="email">Email: {harleenks.it.25, gurveers.it.25, hardikj.it.25, harmanparteeks.it.25}@nitj.ac.in</div>
   <div class="mentor">Faculty Mentor: Dr. Vijay Kumar</div>
 </div>
 
@@ -429,7 +429,7 @@ SELECT count(DISTINCT id) FROM (
   <h2 class="sec-heading">IX. Contributions and Academic Integrity</h2>
   <p><strong>Harleen Kaur (S1)</strong>: Project coordination, abstract, introduction, and conclusion synthesis.<br>
   <strong>Gurveer Singh Brar (S2)</strong>: Literature matrix curation across 24 peer-reviewed papers and theoretical modeling.<br>
-  <strong>Hardik Jassar (S3)</strong>: Docker architecture, query design, and SQLite BFS oracle validation.<br>
+  <strong>Hardik Jassal (S3)</strong>: Docker architecture, query design, and SQLite BFS oracle validation.<br>
   <strong>Harmanparteek Singh (S4)</strong>: Benchmark analysis, chart generation, and viva defense compilation.</p>
   <p class="no-indent"><em>AI Usage Statement</em>: Generative AI was used strictly for grammatical polishing, LaTeX layout formatting, and Playwright PDF styling. All experimental code, architectural analyses, and conclusions were directed and verified by the authors.</p>
 

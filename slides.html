@@ -661,7 +661,7 @@
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 10px;">
-          <span>Group G9: Harleen Kaur, Gurveer Singh Brar, Hardik Jassar, Harmanparteek Singh</span>
+          <span>Group G9: Harleen Kaur, Gurveer Singh Brar, Hardik Jassal, Harmanparteek Singh</span>
           <span>Faculty Mentor: Dr. Vijay Kumar</span>
         </div>
       </section>
@@ -934,12 +934,12 @@
 
         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 10px;">
           <span>Group G9 &bull; S2 Gurveer Singh Brar</span>
-          <span>Next: Proposed Benchmark Architecture (S3 Hardik Jassar)</span>
+          <span>Next: Proposed Benchmark Architecture (S3 Hardik Jassal)</span>
         </div>
       </section>
 
       <!-- ================= SLIDE 5: Proposed Benchmark Architecture & Methodology ================= -->
-      <section class="slide" id="slide-5" data-presenter="S3 Hardik Jassar" data-role="Implementation Lead" data-time="5:00 - 6:30 (90s)">
+      <section class="slide" id="slide-5" data-presenter="S3 Hardik Jassal" data-role="Implementation Lead" data-time="5:00 - 6:30 (90s)">
         <div class="slide-header">
           <div class="header-left">
             <div class="institution-tag"><span></span> Methodology &amp; Engineering Design</div>
@@ -947,7 +947,7 @@
             <p class="slide-subtitle">Reproducible Pipeline: Barabási-Albert Generator, Containers &amp; 3 Query Formulations</p>
           </div>
           <div class="presenter-meta">
-            <div class="badge-presenter badge-s3">Speaker: S3 Hardik Jassar</div>
+            <div class="badge-presenter badge-s3">Speaker: S3 Hardik Jassal</div>
             <div class="time-chip">Allocated: 90 seconds (5:00 - 6:30)</div>
           </div>
         </div>
@@ -1042,13 +1042,13 @@ l3 <span class="code-keyword">AS</span> (<span class="code-keyword">SELECT DISTI
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 10px;">
-          <span>Group G9 &bull; S3 Hardik Jassar</span>
+          <span>Group G9 &bull; S3 Hardik Jassal</span>
           <span>Next: Correctness Verification &amp; Controls</span>
         </div>
       </section>
 
       <!-- ================= SLIDE 6: Correctness Verification & Experimental Controls ================= -->
-      <section class="slide" id="slide-6" data-presenter="S3 Hardik Jassar" data-role="Implementation Lead" data-time="6:30 - 7:30 (60s)">
+      <section class="slide" id="slide-6" data-presenter="S3 Hardik Jassal" data-role="Implementation Lead" data-time="6:30 - 7:30 (60s)">
         <div class="slide-header">
           <div class="header-left">
             <div class="institution-tag"><span></span> Verification &amp; Scientific Controls</div>
@@ -1056,7 +1056,7 @@ l3 <span class="code-keyword">AS</span> (<span class="code-keyword">SELECT DISTI
             <p class="slide-subtitle">SQLite BFS Oracle Passing 136/136 Checks &amp; Strict Resource Isolation</p>
           </div>
           <div class="presenter-meta">
-            <div class="badge-presenter badge-s3">Speaker: S3 Hardik Jassar</div>
+            <div class="badge-presenter badge-s3">Speaker: S3 Hardik Jassal</div>
             <div class="time-chip">Allocated: 60 seconds (6:30 - 7:30)</div>
           </div>
         </div>
@@ -1107,7 +1107,7 @@ selftest OK: 136 query results match the BFS oracle (n=600, edges=1791)
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 10px;">
-          <span>Group G9 &bull; S3 Hardik Jassar</span>
+          <span>Group G9 &bull; S3 Hardik Jassal</span>
           <span>Next: Empirical Results &amp; Synthesis (S4 Harmanparteek Singh)</span>
         </div>
       </section>
@@ -1370,13 +1370,13 @@ selftest OK: 136 query results match the BFS oracle (n=600, edges=1791)
         <p>Our literature survey revealed a critical <strong>Research Gap</strong>: Most existing benchmarks evaluate obsolete DBMS versions such as Neo4j 1.x or MySQL 5.1. Furthermore, they frequently conflate the data model with query formulation—testing a naive recursive CTE without indexing or intermediate deduplication. We identified a total lack of reproducible, container-isolated benchmarks directly contrasting Neo4j 5 against PostgreSQL 16 on pure friends-within-$k$-hops reachability."</p>`
       },
       5: {
-        speaker: "S3 Hardik Jassar (5:00 - 6:30, 90s)",
-        script: `<p><strong>Spoken Script:</strong> "Good day, I am Hardik Jassar, and I will present our proposed benchmark architecture and methodology on Slide 5.</p>
+        speaker: "S3 Hardik Jassal (5:00 - 6:30, 90s)",
+        script: `<p><strong>Spoken Script:</strong> "Good day, I am Hardik Jassal, and I will present our proposed benchmark architecture and methodology on Slide 5.</p>
         <p>To fill the identified research gap, we engineered a completely reproducible experimental pipeline. First, our generator produces deterministic Barabási-Albert graphs using preferential attachment with seed 42 at 1,000, 10,000, and 100,000 persons, with $m=5$ edges added per person. This realistically models the power-law degree distributions and hub nodes characteristic of human social networks.</p>
         <p>Second, we isolate both engines in Docker containers with strictly matched quotas: 4 vCPUs and 6 GB RAM, allocating 2 GB to PostgreSQL's shared buffers and 2 GB heap plus 2 GB page cache to Neo4j. Third, we formulated three distinct queries for the exact same reachability-count semantics: Formulation A is the textbook recursive CTE using UNION to prevent cycle loops. Formulation B is our hand-crafted level-wise join query, which applies DISTINCT at every single hop to eliminate combinatorial explosion in intermediate frontiers. Formulation C is Neo4j Cypher's variable-length traversal."</p>`
       },
       6: {
-        speaker: "S3 Hardik Jassar (6:30 - 7:30, 60s)",
+        speaker: "S3 Hardik Jassal (6:30 - 7:30, 60s)",
         script: `<p><strong>Spoken Script:</strong> "Continuing to Slide 6, I will discuss our correctness verification and experimental controls.</p>
         <p>Before any timing analysis, we had to ensure absolute semantic equivalence. In <code>code/selftest.py</code>, we implemented an offline mathematical verification harness using SQLite and Python's <code>collections.deque</code> BFS. Across 17 seed vertices, 4 traversal depths, and both SQL formulations on a 600-node graph, our test ran 136 automated query checks. All <strong>136 out of 136 queries matched the BFS oracle exactly</strong>, with zero count discrepancies.</p>
         <p>For scientific control, PostgreSQL stores friendships symmetrically as two directed rows with a composite primary key on <code>(src, dst)</code>, creating an immediate covering B-tree index. Neo4j stores each edge once with bidirectional traversal. Every query undergoes an untimed warm-up execution to saturate buffer caches before recording 5 timed repetitions, and we enforce a strict 60-second timeout."</p>`

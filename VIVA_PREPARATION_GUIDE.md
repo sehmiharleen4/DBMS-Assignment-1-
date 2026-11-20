@@ -5,10 +5,10 @@
 **Institution:** Department of Information Technology, Dr B. R. Ambedkar National Institute of Technology Jalandhar  
 **Faculty Mentor:** Dr. Vijay Kumar  
 **Group G9 Authors & Roles:**  
-- **Harleen Kaur (S1, Team Lead / Editor):** Problem framing, Abstract, Introduction, Conclusions (`kaurh.it.23@nitj.ac.in`)  
-- **Gurveer Singh Brar (S2, Literature Lead):** Data models, Literature matrix (24 papers), Standards taxonomy (`brargs.it.23@nitj.ac.in`)  
-- **Hardik Jassar (S3, Implementation Lead):** BA generator, Docker quotas, Schemas, Query formulations, Selftest oracle (`jassarh.it.23@nitj.ac.in`)  
-- **Harmanparteek Singh (S4, Analysis Lead):** Published benchmark synthesis, Result analysis, Slides, Limitations (`singhhp.it.23@nitj.ac.in`)  
+- **Harleen Kaur (S1, Team Lead / Editor):** Problem framing, Abstract, Introduction, Conclusions (`harleenks.it.25@nitj.ac.in`)  
+- **Gurveer Singh Brar (S2, Literature Lead):** Data models, Literature matrix (24 papers), Standards taxonomy (`gurveers.it.25@nitj.ac.in`)  
+- **Hardik Jassal (S3, Implementation Lead):** BA generator, Docker quotas, Schemas, Query formulations, Selftest oracle (`hardikj.it.25@nitj.ac.in`)  
+- **Harmanparteek Singh (S4, Analysis Lead):** Published benchmark synthesis, Result analysis, Slides, Limitations (`harmanparteeks.it.25@nitj.ac.in`)  
 **Date:** November 20, 2026  
 
 ---
@@ -19,7 +19,7 @@
 |---|---|---|---|
 | **S1 Harleen Kaur** | Team Lead &amp; Editor | Slides 1 &amp; 2 (Motivation, Problem Statement, RQ1–RQ3) | Practical motivation ("People You May Know", fraud detection, supply chain), formal problem framing, scope of contributions, paper structure, academic integrity of results reporting. |
 | **S2 Gurveer Singh Brar** | Literature Lead | Slides 3 &amp; 4 (Models &amp; Languages, Literature Matrix &amp; Gap) | Property Graphs vs RDF/SPARQL, ISO GQL (2024), SQL/PGQ (2023), 24-paper taxonomy across 4 themes, identifying gaps in historical benchmark literature. |
-| **S3 Hardik Jassar** | Implementation Lead | Slides 5 &amp; 6 (Benchmark Architecture, Methodology, Correctness) | Barabási–Albert generator mechanics ($m=5$, seed 42), Docker resource quotas (4 CPU, 6 GB RAM), 3 query formulations (CTE vs Level-wise vs Cypher), SQLite BFS oracle test passing 136/136 checks. |
+| **S3 Hardik Jassal** | Implementation Lead | Slides 5 &amp; 6 (Benchmark Architecture, Methodology, Correctness) | Barabási–Albert generator mechanics ($m=5$, seed 42), Docker resource quotas (4 CPU, 6 GB RAM), 3 query formulations (CTE vs Level-wise vs Cypher), SQLite BFS oracle test passing 136/136 checks. |
 | **S4 Harmanparteek Singh** | Analysis Lead | Slides 7 &amp; 8 (Empirical Synthesis, Threats to Validity, Conclusion) | Synthesis of Kotiranta (2022) and Hohenstein (2019), workload-dependent performance tradeoffs, evaluation of hypotheses H1–H4, threats to validity, future research horizons. |
 
 > **Important Rule for Viva Defense:** *Every member must be prepared to answer any of the 12 questions.* The examiner will frequently cross-question across roles to verify genuine team collaboration.
@@ -415,7 +415,7 @@ Both systems would see notable throughput gains, but intra-query parallel traver
 |---|---|---|
 | **Harleen Kaur (S1)** | Problem justification, social network motivation, research questions RQ1–RQ3, conclusions, threats to validity | `paper/main.tex` (Sec I, VII), `presentation_and_viva.md` (Slide 1, 2) |
 | **Gurveer Singh Brar (S2)** | Property graph vs RDF, GQL &amp; SQL/PGQ standards, 24-paper literature matrix, related work taxonomy | `literature_matrix.csv`, `paper/main.tex` (Sec II, III, Table I, Table III) |
-| **Hardik Jassar (S3)** | Barabási–Albert generator, Docker compose limits, SQLite BFS self-test, SQL CTE vs Cypher queries, index design | `code/selftest.py`, `code/queries.py`, `code/generate_graph.py`, `code/docker-compose.yml` |
+| **Hardik Jassal (S3)** | Barabási–Albert generator, Docker compose limits, SQLite BFS self-test, SQL CTE vs Cypher queries, index design | `code/selftest.py`, `code/queries.py`, `code/generate_graph.py`, `code/docker-compose.yml` |
 | **Harmanparteek Singh (S4)** | Published benchmark findings (Kotiranta 2022, Hohenstein 2019), query plan interpretations, H1–H4 hypotheses, slides | `presentation_and_viva.md` (Slide 7, 8), `paper/main.tex` (Sec VI) |
 
 ---
