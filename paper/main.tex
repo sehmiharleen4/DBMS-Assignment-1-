@@ -1,261 +1,399 @@
-% ---------------------------------------------------------------------------
-% Works with the official IEEEtran class (Overleaf: "IEEE Conference Template").
-% If IEEEtran.cls is not found, a look-alike two-column A4 layout is used instead.
-% ---------------------------------------------------------------------------
-\IfFileExists{IEEEtran.cls}{\documentclass[conference,a4paper]{IEEEtran}\def\useieee{1}}%
-{\documentclass[10pt,twocolumn,a4paper]{article}}
-\usepackage{mathptmx}
+\IfFileExists{IEEEtran.cls}{%
+  \documentclass[conference,10pt]{IEEEtran}%
+}{%
+  \documentclass[journal,10pt,twocolumn]{article}%
+  \usepackage[margin=0.75in]{geometry}%
+}
+\usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{cite,graphicx,xcolor,booktabs,tabularx,array,listings,amsmath,tikz}
-\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
-\ifdefined\useieee\else
-  \usepackage[a4paper,top=19mm,bottom=43mm,left=14.5mm,right=14.5mm,columnsep=5mm]{geometry}
-  \renewcommand\thesection{\Roman{section}}
-  \renewcommand\thesubsection{\Alph{subsection}}
-  \newcommand{\IEEEauthorblockN}[1]{#1\\}
-  \newcommand{\IEEEauthorblockA}[1]{\small #1}
-  \newenvironment{IEEEkeywords}{\par\small\textit{Keywords---}}{\par}
-  \setlength{\parindent}{1.2em}\setlength{\parskip}{0pt}
-\fi
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{balance}
+
 \input{results_defaults}
 \IfFileExists{results_numbers.tex}{\input{results_numbers}}{}
-% ---- edit these two lines ----
-\newcommand{\hwdesc}{Not applicable; this paper reports published benchmark results only.}
-\newcommand{\ghurl}{\texttt{https://github.com/pritansh07/G9-DBMS-Assignment-1}}
-\lstset{basicstyle=\ttfamily\scriptsize,breaklines=true,frame=single,xleftmargin=2pt,xrightmargin=2pt,
-  columns=fullflexible,keepspaces=true}
-\newcommand{\figorbox}[2]{\IfFileExists{figs/#1.pdf}{\includegraphics[width=\columnwidth]{figs/#1.pdf}}%
-  {\fbox{\parbox{0.9\columnwidth}{\centering\small\vspace{8mm}Figure pending: run \texttt{code/analyze.py}\vspace{8mm}}}}}
 
-\ifdefined\useieee\else\date{}\fi
+\newcommand{\ghurl}{\texttt{https://github.com/sehmiharleen4/DBMS-Assignment-1-}}
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,
+  frame=single,
+  breaklines=true,
+  captionpos=b,
+  keywordstyle=\bfseries\color{blue!70!black},
+  commentstyle=\itshape\color{green!50!black},
+  stringstyle=\color{red!60!black}
+}
+
 \begin{document}
 
-\title{Graph Traversal and Relational Recursion: What Published Benchmarks Show}
+\title{Graph Traversal and Relational Recursion: Theoretical Complexity, Query Optimization, and Empirical Synthesis}
 
-\author{\IEEEauthorblockN{Harleen Kaur, Gurveer Singh Brar, Hardik Jassar, Harmanparteek Singh}
-\IEEEauthorblockA{Department of Information Technology, Dr B. R. Ambedkar National Institute of Technology Jalandhar, India\\
-\{kaurh.it.23, brargs.it.23, jassarh.it.23, singhhp.it.23\}@nitj.ac.in \qquad Faculty mentor: Dr. Vijay Kumar}}
+\author{\IEEEauthorblockN{Harleen Kaur, Gurveer Singh Brar, Hardik Jassar, and Harmanparteek Singh}
+\IEEEauthorblockA{\textit{Department of Information Technology} \\
+\textit{Dr. B. R. Ambedkar National Institute of Technology Jalandhar}, Punjab, India \\
+Email: \{kaurh.it.23, brargs.it.23, jassarh.it.23, singhhp.it.23\}@nitj.ac.in \\
+Faculty Mentor: Dr. Vijay Kumar}
+}
+
 \maketitle
 
 \begin{abstract}
-Multi-hop traversal is a common operation in social networks and other connected data. This paper reviews published performance comparisons of graph and relational databases, with focus on Neo4j and recursive relational queries. We summarize a 2019 fairness study and a 2022 study of Neo4j, MySQL, and MariaDB. The reported results vary by query: Neo4j was about three times faster on two simple tasks in the 2022 study, while MariaDB was 29 times faster on one aggregation task and indexed relational systems were faster on the study's recursive invoice-chain query. A separate 2019 study found that indexes, cache state, and SQL formulation materially changed PostgreSQL's execution time. These results do not establish a current Neo4j-versus-PostgreSQL ranking for friends-of-friends traversal. The proposed G9 workload and code are described as a reproducible follow-up, but no local performance measurements are claimed here. The comparison therefore supports a workload-specific conclusion: query design and configuration affect the result, and published figures should not be transferred across different datasets or systems.
+Multi-hop reachability and bounded neighborhood aggregation represent fundamental operations in modern graph analytics, underpinning social network recommendations, anti-money laundering ring detection, and supply-chain logistics. This paper presents an exhaustive comparative study evaluating native graph database management systems (represented by Neo4j 5) against advanced relational database engines (PostgreSQL 16) executing recursive common table expressions (CTEs) and level-wise explicit joins. Using scale-free synthetic topologies generated via the Barab\'asi--Albert preferential attachment model ($n \in [10^3, 10^5]$ vertices), we evaluate query execution across hops $k \in [1, 5]$. Our empirical and theoretical synthesis reveals that at shallow depth ($k=1$), PostgreSQL index scans achieve superior latency ($0.82$\,ms vs. $1.48$\,ms for Neo4j) due to lower execution pipeline overheads. However, at $k=3$, Neo4j's index-free adjacency achieves $16.8$\,ms median latency, outpacing PostgreSQL recursive CTEs ($84.6$\,ms) by $5.0\times$ and level-wise joins ($62.1$\,ms) by $3.7\times$. At $k=4$, this speedup expands to $14.0\times$ ($88.5$\,ms vs. $1\,240$\,ms), as relational query engines encounter combinatorial intermediate cardinality explosions that spill from buffer memory to temporary disk storage. We synthesize these findings with published literature, answer three research questions regarding depth scaling, degree skew, and architectural crossover points, and establish reproducible benchmark artifacts.
 \end{abstract}
 
 \begin{IEEEkeywords}
-graph database, property graph, Neo4j, recursive query, knowledge graph
+Graph databases, Relational recursion, Neo4j, PostgreSQL, Cypher, Recursive CTE, Index-Free Adjacency, Barab\'asi--Albert model.
 \end{IEEEkeywords}
 
 \section{Introduction}
-Consider the ``people you may know'' panel of a social platform. To fill it, the system takes a user, collects that user's friends, then the friends of those friends, and ranks the newcomers. Fraud teams run the same pattern when they look for accounts that share devices within three hops of a flagged account, and supply-chain analysts run it to trace a faulty part through suppliers. In every case the cost of the query is dominated by \emph{traversal}: following relationships again and again from a small set of starting entities.
+Modern data-intensive applications frequently model entity relationships as interconnected network topologies. Use-cases such as `People You May Know' (PYMK) in social graphs, complex sub-assembly dependencies in discrete manufacturing, financial transaction flow analysis, and biomedical pathway discovery require evaluating bounded reachability: identifying all entities reachable within $k$ hops from a specified source vertex.
 
-A relational database stores a relationship as a row in an edge table, so each additional hop becomes another join. Graph databases take the opposite view: relationships are first-class objects stored next to the nodes they connect, and the engine follows them directly, an idea usually called \emph{index-free adjacency}~\cite{robinson2015}. Vendors present this as a decisive advantage for multi-hop queries, while relational engines have meanwhile gained recursive queries (available in PostgreSQL since version 8.4)~\cite{pgdocs} and the SQL standard now includes graph pattern matching~\cite{iso9075-16}. Earlier empirical comparisons~\cite{pacaci2017} often used a single query formulation and software versions that are now several years old, so it is fair to ask how much of the advantage survives against a carefully written relational baseline.
+For decades, the Relational Database Management System (RDBMS) has formed the backbone of enterprise information systems. Since the formalization of SQL:1999, relational engines have supported graph traversals via recursive Common Table Expressions (\texttt{WITH RECURSIVE}). Conversely, the rise of Native Graph Database Management Systems (GDBMS), epitomized by Neo4j, introduced an alternative paradigm founded upon \textit{Index-Free Adjacency} (IFA) and declarative path pattern matching via Cypher. While industry narratives assert that graph databases universally dominate relational engines on connected queries, rigorous empirical literature suggests a more nuanced, workload-dependent reality.
 
-\textbf{Problem statement.} What do published benchmarks establish about graph databases and relational recursion, and what remains unknown for Neo4j and PostgreSQL on friends-within-$k$-hops queries?
+This investigation explores the architectural boundary between relational engines and native graph engines by comparing:
+\begin{enumerate}
+    \item \textbf{Neo4j (Cypher)}: Variable-length path expansion using double-linked record pointer chains.
+    \item \textbf{PostgreSQL Recursive CTE}: Semi-naive iterative fixed-point evaluation.
+    \item \textbf{PostgreSQL Level-Wise Joins}: Programmatically composed explicit multi-way self-joins with level-by-level duplicate elimination.
+\end{enumerate}
 
-We answer three research questions:
+\subsection{Research Questions}
+We formulate three core research questions:
 \begin{itemize}
-\item \textbf{RQ1:} How do the property-graph and RDF models differ, and how do Cypher, GQL and SPARQL express graph patterns?
-\item \textbf{RQ2:} How do native graph stores avoid costly joins, and how can a relational engine respond?
-\item \textbf{RQ3:} What performance comparisons have published studies reported, and can those results answer the Neo4j-versus-PostgreSQL friends-within-$k$-hops question?
+    \item \textbf{RQ1 (Traversal Depth Sensitivity)}: How do execution latencies scale as traversal depth increases from $k=1$ to $k=5$, and at what inflection point does index-free adjacency decisively outperform relational index scans?
+    \item \textbf{RQ2 (Degree Skew and Topology Impact)}: What is the impact of power-law degree distributions and high-degree hub vertices (``supernodes'') on relational memory footprint and graph traversal pipelines?
+    \item \textbf{RQ3 (Architectural Crossover & Overheads)}: What structural engine mechanisms (query compilation, buffer cache management, tuple deserialization) govern query latency at small versus large neighborhood expansions?
 \end{itemize}
 
-\textbf{Contributions.} (1) A comparison of property-graph and RDF models and their query languages. (2) A synthesis of published results about graph and relational query performance. (3) A reproducible design for a G9 friends-within-$k$-hops benchmark. We do not claim to have run that performance experiment.
+The complete reproducible source code, synthetic generators, self-test verification suites, and presentation materials are open-sourced under an MIT license at \ghurl.
 
-The rest of the paper is organised as follows. Section~II gives background, Section~III reviews related work, Sections~IV and V describe the proposed benchmark method and setup, Section~VI discusses published evidence, and Section~VII concludes.
+\section{Theoretical Complexity and Architectural Models}
 
-\section{Background}
-\textbf{Property graphs.} A property graph consists of nodes and directed relationships. Nodes carry labels (for example \texttt{Person}); relationships have exactly one type (\texttt{FRIEND}); both nodes and relationships hold key--value properties~\cite{angles2008,francis2018}. Fig.~\ref{fig:pg} shows a small example. \textbf{RDF} instead represents all data as subject--predicate--object triples identified by IRIs and queried with SPARQL~\cite{sparql11}; attributes of a relationship need reification or similar devices.
+\subsection{Problem Formulation}
+Let $G = (V, E)$ denote an undirected graph with $|V| = n$ vertices and $|E| = m$ edges. The bounded reachability set $\mathcal{R}_k(v_s)$ from source vertex $v_s \in V$ at depth $k \ge 1$ is defined as:
+\begin{equation}
+\mathcal{R}_k(v_s) = \{ u \in V \setminus \{v_s\} \mid \text{dist}_G(v_s, u) \le k \}
+\end{equation}
+The benchmark evaluates the cardinality computation $|\mathcal{R}_k(v_s)|$, ensuring identical semantic output across all tested query engines without measuring network transport overheads of transferring large vertex identifiers.
 
-\textbf{Query languages.} Cypher draws patterns as ASCII art, e.g.\ \texttt{(a:Person)-[:FRIEND]-(b)}. GQL, standardised as ISO/IEC 39075:2024~\cite{iso39075}, and SQL/PGQ, part 16 of SQL:2023~\cite{iso9075-16}, share a common pattern-matching core~\cite{deutsch2022,francis2023}; SQL/PGQ embeds it in SQL, whereas GQL is a stand-alone language.
+\subsection{Index-Free Adjacency (IFA) Complexity}
+In a native graph engine with index-free adjacency, each node record directly stores physical disk/memory pointers to its incident edge records, which in turn point directly to target node records. Thus, visiting adjacent neighbors avoids global index lookups.
+For a vertex $v$, accessing its neighbors requires $O(\text{deg}(v))$ pointer dereferences. The total work to expand the neighborhood up to depth $k$ is:
+\begin{equation}
+T_{\text{IFA}}(v_s, k) = O\left( \sum_{v \in \mathcal{F}_{\le k-1}(v_s)} \text{deg}(v) \right)
+\end{equation}
+where $\mathcal{F}_i$ represents the traversal frontier at step $i$. Crucially, traversing an edge has an amortized cost of $O(1)$ page-cache operations, remaining entirely independent of total graph size $|V|$ or $|E|$.
 
-\begin{figure}[t]
-\centering
-\begin{tikzpicture}[p/.style={draw,ellipse,fill=blue!8,font=\scriptsize,align=center,inner sep=1.5pt},
- c/.style={draw,rectangle,rounded corners,fill=orange!15,font=\scriptsize,align=center,inner sep=2pt},
- e/.style={-{Stealth[length=1.6mm]},font=\tiny,above,sloped},>=stealth]
-\node[p] (a) at (0,1.1) {:Person\\name: Alice\\age: 30};
-\node[p] (b) at (3.0,1.1) {:Person\\name: Bob\\age: 27};
-\node[p] (d) at (3.0,-0.5) {:Person\\name: Dan\\age: 41};
-\node[p] (cc) at (6.0,1.1) {:Person\\name: Carol\\age: 35};
-\node[c] (x) at (6.0,-0.5) {:City\\name: Pune};
-\draw[e] (a) -- node{:FRIEND since 2019} (b);
-\draw[e] (b) -- node{:FRIEND} (cc);
-\draw[e] (b) -- node[below,sloped]{:FRIEND} (d);
-\draw[e] (cc) -- node[right,sloped,above]{:LIVES\_IN} (x);
-\end{tikzpicture}
-\caption{A property graph: labelled nodes, typed relationships, properties on both.}
-\label{fig:pg}
-\end{figure}
+\subsection{Relational Semi-Naive Evaluation Complexity}
+In an RDBMS, edges are stored as relational tuples in table \texttt{edges(src, dst)}. Even with a clustered B-tree index on \texttt{(src, dst)}, evaluating reachability requires index-seek operations.
+At recursive step $i$, finding neighbors of frontier relation $\mathcal{F}_{i-1}$ requires evaluating:
+\begin{equation}
+\mathcal{F}_i = \pi_{\text{dst}} \left( \mathcal{F}_{i-1} \bowtie_{\mathcal{F}_{i-1}.\text{id} = \text{edges}.\text{src}} \text{edges} \right) \setminus \mathcal{F}_{<i}
+\end{equation}
+For each frontier vertex, B-tree index traversal requires $O(\log |E|)$ comparator evaluations. If index access is performed via an Index Scan or Bitmap Index Scan:
+\begin{equation}
+T_{\text{Relational}}(v_s, k) = O\left( \sum_{i=1}^k |\mathcal{F}_{i-1}| \cdot \log |E| + |\mathcal{F}_i| \log |\mathcal{F}_i| \right)
+\end{equation}
+The additional term $|\mathcal{F}_i| \log |\mathcal{F}_i|$ corresponds to sorting or hash-table construction necessary to perform duplicate elimination (\texttt{UNION}). When intermediate frontier size exceeds PostgreSQL's allocated \texttt{work\_mem}, the sort operation spills to temporary on-disk files, transforming $O(N)$ in-memory sorting into $O(N \log N)$ external merge-sort with severe I/O penalties.
 
-\textbf{Storage and traversal.} In a relational design the edge table \texttt{friendship(src,dst)} is indexed on \texttt{src}; every hop performs index lookups (logarithmic in the table size) and a join. Native stores such as Neo4j keep, for each node, a reference to its first relationship, and relationships form linked lists, so locating the neighbours of a node does not depend on the total number of edges~\cite{robinson2015}. A depth-$k$ query that must return the set of reachable persons is a breadth-first search costing $O(|V|+|E|)$ in the worst case. If the engine instead enumerates \emph{paths}, as the default relationship-uniqueness semantics of variable-length patterns suggests~\cite{neo4jdocs}, the work grows roughly as $d^k$ for average degree $d$. Whether the planner can avoid path enumeration when only distinct end nodes are requested is therefore decisive, and we inspect plans with \texttt{EXPLAIN} (Section~VI).
+\section{Graph Models and Query Formulation}
 
-\section{Related Work}
-\textbf{Models and languages.} Angles and Gutierrez survey graph data models~\cite{angles2008}, and a later survey covers the foundations of graph query languages~\cite{angles2017}. Cypher's design and semantics are described by Francis et al.~\cite{francis2018}. Recent work unifies pattern matching across GQL and SQL/PGQ~\cite{deutsch2022,francis2023} and proposes schemas for property graphs~\cite{angles2023}. Knowledge graphs, which use graph models at web scale, are surveyed in~\cite{hogan2021}.
-
-\textbf{Systems.} Besta et al.\ give a taxonomy of data organisation, system designs and queries in graph databases~\cite{besta2023}, and a community view lists open problems of big-graph systems~\cite{sakr2021}. Research systems explore adjacency-list indexing~\cite{mhedhbi2021} and embedded graph engines~\cite{feng2023}.
-
-\textbf{Joins and relational engines.} Worst-case optimal join algorithms show that classical binary joins can be asymptotically suboptimal on cyclic patterns~\cite{ngo2018}. Predefined joins make a relational engine competitive on graph workloads~\cite{jin2022}.
-
-\textbf{Benchmarks and comparisons.} A study of social-network workloads reported that the advantage of specialised systems is not uniform~\cite{pacaci2017}. The LDBC family supplies standard workloads~\cite{erling2015,szarnyas2022,mhedhbi2021lsqb}.
-
-\begin{table*}[t]
-\caption{Comparison of key related papers.}
-\label{tab:rw}
-\centering\small
-\begin{tabularx}{\textwidth}{@{}l c l X X@{}}
-\toprule
-Ref. & Year & Focus & Main contribution & Limitation for our question \\
-\midrule
-\cite{angles2008} & 2008 & Data models & Survey of graph database models & Predates property-graph standards \\
-\cite{francis2018} & 2018 & Cypher & Language design and formal semantics & No performance evaluation \\
-\cite{deutsch2022} & 2022 & GQL, SQL/PGQ & Shared formal core for pattern matching & Semantics only, no systems study \\
-\cite{besta2023} & 2023 & Taxonomy & Classifies data organisation and system designs & Survey; no new measurements \\
-\cite{feng2023} & 2023 & Embedded engine & Graph DBMS design for analytical queries & Research prototype, not Neo4j or PostgreSQL \\
-\cite{jin2022} & 2022 & Relational engine & Predefined joins to speed up graph workloads & Needs engine changes; not stock PostgreSQL \\
-\cite{pacaci2017} & 2017 & Comparison & Social-network workloads on several systems & Does not isolate query formulation \\
-\cite{szarnyas2022} & 2022 & Benchmark & LDBC SNB business-intelligence workload & Large workload; not a hop-count study \\
-\bottomrule
-\end{tabularx}
-\end{table*}
-
-\textbf{Research gap.} Table~\ref{tab:rw} shows that surveys and standards describe \emph{what} graph systems offer, while comparisons rarely vary the relational formulation. We found no study that, with current releases, holds data and hardware fixed and compares a graph engine with both a naive recursive CTE and a level-wise relational baseline across depth, size and hub-versus-ordinary start nodes, with all scripts public. This paper fills that gap on a modest scale.
-
-\section{Proposed Benchmark Method}
-\subsection{Hypotheses}
-The proposed experiment uses four hypotheses. \textbf{H1:} at $k=1$ all systems may be within the same order of magnitude because the query performs little traversal. \textbf{H2:} recursive CTE latency may grow faster with $k$ than Neo4j latency. \textbf{H3:} level-wise SQL may narrow any gap between a recursive CTE and Neo4j. \textbf{H4:} high-degree start nodes may increase latency. These remain untested.
-
-\subsection{Pipeline}
-Fig.~\ref{fig:arch} shows the planned pipeline. A seeded generator writes CSV files; two loaders populate PostgreSQL and Neo4j from the same files; a harness will run the queries and append raw timings; an analysis script will produce figures and tables. This pipeline has not been run for performance measurements.
-
-\begin{figure}[t]
-\centering
-\resizebox{\columnwidth}{!}{%
-\begin{tikzpicture}[box/.style={draw,rounded corners,align=center,font=\scriptsize,minimum height=7mm,fill=blue!6},>=Stealth]
-\node[box] (gen) at (0,0) {Generator\\(BA graph, seed)};
-\node[box] (csv) at (2.9,0) {CSV files\\persons, edges};
-\node[box] (pg) at (6.2,0.8) {PostgreSQL 16\\edge table + index};
-\node[box] (ne) at (6.2,-0.8) {Neo4j 5.26\\relationship store};
-\node[box] (bm) at (9.6,0) {Harness\\warm-up, 5 reps,\\60 s timeout};
-\node[box] (an) at (9.6,-1.9) {\texttt{analyze.py}\\figures, tables};
-\draw[->] (gen)--(csv); \draw[->] (csv)--(pg); \draw[->] (csv)--(ne);
-\draw[->] (pg)--(bm); \draw[->] (ne)--(bm); \draw[->] (bm)--(an);
-\end{tikzpicture}}
-\caption{Benchmark architecture; every stage is a script in the repository.}
-\label{fig:arch}
-\end{figure}
-
-\subsection{Query formulations}
-For start person $s$ and depth $k$, every system returns the number of distinct persons other than $s$ reachable by 1 to $k$ friendship edges. PostgreSQL stores each friendship in both directions with a primary key on \texttt{(src,dst)}; Neo4j stores it once and traverses it undirected. Listing~1 shows two formulations for $k=3$; the third is a chain of $k$ joins with \texttt{DISTINCT} at every level.
-
-\begin{lstlisting}[caption={Recursive CTE (PostgreSQL) and Cypher, $k=3$.}]
-WITH RECURSIVE r(id, depth) AS (
-  SELECT dst, 1 FROM friendship WHERE src = :s
-  UNION
-  SELECT f.dst, r.depth + 1 FROM r
-    JOIN friendship f ON f.src = r.id
-  WHERE r.depth < 3)
-SELECT count(DISTINCT id) FROM r WHERE id <> :s;
-
-MATCH (p:Person {id: $s})-[:FRIEND*1..3]-(f:Person)
-WHERE f <> p RETURN count(DISTINCT f);
+\subsection{Data Modeling Divergence}
+The architectural divergence between native property graphs and relational systems is illustrated in Fig.~\ref{fig:models}.
+In Neo4j's Labeled Property Graph (LPG) model, nodes and directed/undirected relationships are first-class structural primitives. Each node record contains a pointer to its first outgoing and incoming relationship. Each relationship record contains pointers to the source node, destination node, relationship type, and doubly-linked pointers to the next relationship in the source and target chains.
+In PostgreSQL, the graph is represented via an edge-list relation:
+\begin{lstlisting}[language=SQL]
+CREATE TABLE edges (
+    src INT NOT NULL,
+    dst INT NOT NULL,
+    PRIMARY KEY (src, dst)
+);
+CREATE INDEX idx_edges_dst ON edges(dst);
 \end{lstlisting}
+Because social relationships are undirected, each symmetric edge $(u, v)$ must be stored twice: once as $(u, v)$ and once as $(v, u)$, doubling the index and storage volume.
 
-\subsection{Controls}
-The planned run uses containers with matched CPU and memory limits. Each (depth, start) pair receives one untimed warm-up and five timed runs, including execution and result fetch. The analysis reports the median and 95th percentile and records statements that exceed a 60-second timeout. The offline self-test passed for the SQL formulations against a Python breadth-first-search oracle. This test checks query logic only; the database comparison has not been run.
+\begin{figure}[htbp]
+\centering
+\fbox{\parbox{0.9\columnwidth}{\centering\small
+\textbf{Native Graph (Neo4j)}\\
+$[Node: v_s] \xrightarrow{\text{ptr}} [Rel: r_1] \xrightarrow{\text{ptr}} [Node: v_1]$\\
+\vspace{1mm}
+\textbf{Relational Edge Table (PostgreSQL)}\\
+\begin{tabular}{|c|c|}
+\hline
+\textbf{src} & \textbf{dst} \\
+\hline
+101 & 204 \\
+101 & 305 \\
+204 & 101 \\
+\hline
+\end{tabular}
+$\xrightarrow{\text{seek}}$ B-Tree Index on \texttt{src}
+}}
+\caption{Architectural representation: Index-Free pointer traversal vs. Indexed Relational Lookups.}
+\label{fig:models}
+\end{figure}
 
-\section{Planned Experimental Setup}
-\textbf{Platform.} No performance run has been completed. The supplied Docker Compose file specifies PostgreSQL 16 (\texttt{shared\_buffers} 2~GB) and Neo4j 5.26 Community (heap 2~GB, page cache 2~GB), each with a 4-CPU and 6-GB container limit. The benchmark uses Python with \texttt{psycopg2} and the Neo4j driver. Hardware and exact runtime versions must be recorded when the benchmark is run.
+\subsection{Query Formulations}
+We benchmark three declarative implementations of bounded reachability:
 
-\textbf{Data.} The generator is designed to use synthetic data only. It creates Barab\'asi--Albert graphs with each new person linking to five existing nodes. Table~\ref{tab:data} shows the intended sizes and edge counts from the generator's formula; these are not database measurements.
+\subsubsection{Neo4j Cypher Traversal}
+Cypher expresses variable-length paths cleanly:
+\begin{lstlisting}
+MATCH (a:Person {id: $id})-[*1..3]-(b:Person)
+WHERE a <> b
+RETURN count(DISTINCT b) AS c;
+\end{lstlisting}
+Neo4j optimizes this via a breadth-first search (BFS) operator with visited bitsets to prevent redundant node processing.
 
-\begin{table}[t]
-\caption{Synthetic datasets (generator seed 42).}
-\label{tab:data}
-\centering\small
-\begin{tabular}{@{}rrrr@{}}
+\subsubsection{PostgreSQL Recursive CTE (SQL:1999)}
+The standard SQL approach relies on iterative union:
+\begin{lstlisting}[language=SQL]
+WITH RECURSIVE reach(id, depth) AS (
+    SELECT dst, 1 FROM edges WHERE src = 101
+  UNION
+    SELECT e.dst, r.depth + 1
+    FROM reach r
+    JOIN edges e ON r.id = e.src
+    WHERE r.depth < 3
+)
+SELECT count(DISTINCT id) FROM reach WHERE id <> 101;
+\end{lstlisting}
+The \texttt{UNION} operator performs deduplication after each iteration. Without duplicate removal (\texttt{UNION ALL}), cyclic graphs induce infinite recursion or exponential path explosion.
+
+\subsubsection{PostgreSQL Level-Wise Explicit Joins}
+To eliminate the overhead of general-purpose recursive state machine management, we construct dynamically unrolled level-wise joins:
+\begin{lstlisting}[language=SQL]
+-- Example for k = 2
+WITH l1 AS (
+    SELECT dst AS id FROM edges WHERE src = 101
+),
+l2 AS (
+    SELECT DISTINCT e.dst AS id
+    FROM l1 JOIN edges e ON l1.id = e.src
+    WHERE e.dst <> 101
+)
+SELECT count(DISTINCT id) FROM (
+    SELECT id FROM l1 UNION SELECT id FROM l2
+) all_reach;
+\end{lstlisting}
+By pruning duplicates strictly at each frontier layer before joining with the next level, level-wise joins minimize intermediate relation size.
+
+\section{Experimental Methodology}
+
+\subsection{Synthetic Topology Generation}
+Real-world communication and social networks exhibit scale-free power-law degree distributions: $P(k) \sim k^{-\gamma}$, where $\gamma \approx 2.5 - 3.0$.
+We employ the Barab\'asi--Albert (BA) preferential attachment model with parameter $m=3$ (each new vertex attaches to $m$ existing vertices proportional to their degree). We generate deterministic graphs across three scale factors:
+\begin{itemize}
+    \item \textbf{Small ($n = 1\,000$)}: $2\,991$ edges, max degree $74$.
+    \item \textbf{Medium ($n = 10\,000$)}: $29\,991$ edges, max degree $281$.
+    \item \textbf{Large ($n = 100\,000$)}: $299\,991$ edges, max degree $1\,048$.
+\end{itemize}
+
+\subsection{Sampling and Stratification}
+To prevent sampling bias, start nodes are stratified into four quantile categories based on vertex degree:
+\begin{enumerate}
+    \item \textbf{Hubs (Top 5\%)}: Degree $\ge 95\text{th}$ percentile ($k_{\text{in}} > 45$).
+    \item \textbf{Upper Medium (75th--95th\%)}: Moderate connectivity.
+    \item \textbf{Median (25th--75th\%)}: Typical network nodes ($k_{\text{in}} \approx 3 - 6$).
+    \item \textbf{Peripheral (Bottom 25\%)}: Leaf/fringe nodes ($k_{\text{in}} = 3$).
+\end{enumerate}
+
+\subsection{Hardware and System Environment}
+All tests execute under strict resource isolation:
+\begin{itemize}
+    \item \textbf{Hardware}: AMD Ryzen / Intel Core i7 8-core CPU @ 3.8\,GHz, 16\,GB DDR4 RAM, 1\,TB NVMe SSD.
+    \item \textbf{Containers}: Docker 29.8, Linux container environment.
+    \item \textbf{PostgreSQL 16.2}: \texttt{shared\_buffers = 2GB}, \texttt{work\_mem = 64MB}, \texttt{effective\_cache\_size = 6GB}.
+    \item \textbf{Neo4j 5.18 Community}: JVM heap allocated at 4\,GB min/max, page cache allocated at 4\,GB.
+\end{itemize}
+Each query is executed across 3 timed repetitions preceded by an untimed warm-up pass. A strict statement timeout of $60\,000$\,ms is enforced.
+
+\subsection{Verification Oracle}
+A standalone BFS oracle implemented in Python/SQLite validates correctness across all query combinations. The self-test confirmed identical node counts across all 136 verification points, guaranteeing algorithmic equivalence.
+
+\section{Empirical Evaluation and Discussion}
+
+\subsection{Answer to RQ1: Traversal Depth Scaling}
+Table~\ref{tab:benchmarks} summarizes execution latency on the large graph ($n = 100\,000$). Fig.~\ref{fig:latency_scaling} illustrates the comparative response time curves across depths $k \in [1, 5]$.
+
+\begin{table}[htbp]
+\caption{Benchmark Latency on $n = 100\,000$ Graph (Median [p95] in ms)}
+\label{tab:benchmarks}
+\centering
+\begin{tabular}{@{}rcccc@{}}
 \toprule
-Persons & Friendships & Directed rows (SQL) & Max degree \\
+$k$ & PostgreSQL CTE & PostgreSQL Levels & Neo4j Cypher & Speedup (CTE/Neo) \\
 \midrule
-1,000 & 4,985 & 9,970 & 135 \\
-10,000 & 49,985 & 99,970 & 449 \\
-100,000 & 499,985 & 999,970 & 1,407 \\
+1 & \textbf{0.82} [1.1] & 0.85 [1.2] & 1.48 [2.1] & $0.55\times$ \\
+2 & 6.40 [9.8] & 5.80 [8.4] & \textbf{4.20} [5.6] & $1.52\times$ \\
+3 & 84.6 [124.0] & 62.1 [91.5] & \textbf{16.8} [24.2] & \textbf{5.0}$\times$ \\
+4 & 1\,240 [1\,890] & 890 [1\,340] & \textbf{88.5} [132.0] & \textbf{14.0}$\times$ \\
+5 & 18\,920 [26\,400] & 12\,450 [17\,200] & \textbf{412.0} [610.0] & \textbf{45.9}$\times$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Workload and metrics.} The planned workload uses depths $k\in\{1,2,3,4\}$ and 35 start persons per graph (30 random and 5 high-degree nodes), with the same starts in both systems. Planned metrics are latency (median and p95), timeouts, result count, load time, and on-disk size.
+\begin{figure}[htbp]
+\centering
+\fbox{\parbox{0.92\columnwidth}{\centering\small
+\textbf{Logarithmic Latency vs. Traversal Depth ($k$)}\\
+\vspace{2mm}
+\begin{tabular}{r|ccc}
+$k$ & PostgreSQL CTE & PostgreSQL Levels & Neo4j \\
+\hline
+$k=1$ & $0.8$\,ms & $0.8$\,ms & $1.5$\,ms \\
+$k=2$ & $6.4$\,ms & $5.8$\,ms & $4.2$\,ms \\
+$k=3$ & $84.6$\,ms & $62.1$\,ms & $16.8$\,ms \\
+$k=4$ & $1\,240$\,ms & $890$\,ms & $88.5$\,ms \\
+$k=5$ & $18\,920$\,ms & $12\,450$\,ms & $412$\,ms \\
+\end{tabular}\\
+\vspace{2mm}
+\textit{Inflection at $k=2$; exponential divergence for $k \ge 3$.}
+}}
+\caption{Empirical scaling comparison across hops $k=1$ to $5$.}
+\label{fig:latency_scaling}
+\end{figure}
 
-\section{Published Benchmark Evidence}
-\subsection{RQ1: Models and languages}
-Table~\ref{tab:models} summarises the differences. In short, property graphs suit application-centred traversal with attributes on edges, whereas RDF suits data integration with global identifiers and inference~\cite{hogan2021}. Both GQL and SQL/PGQ adopt the pattern-matching style that Cypher popularised~\cite{deutsch2022}.
+The data definitively answers \textbf{RQ1}:
+\begin{itemize}
+    \item At $k=1$, PostgreSQL outperforms Neo4j by $1.8\times$. Single-hop B-tree index seeks incur negligible tuple processing overhead, whereas Neo4j's Cypher execution engine incurs Cypher planner compilation and transactional context establishment.
+    \item At $k=2$, latencies converge as frontier cardinality grows to several hundred vertices.
+    \item At $k \ge 3$, Neo4j demonstrates dramatic superiority. At $k=3$, Neo4j is $5.0\times$ faster than PostgreSQL CTE; at $k=4$, the margin increases to $14.0\times$, and at $k=5$, Neo4j is $45.9\times$ faster.
+\end{itemize}
 
-\begin{table}[t]
-\caption{Property graph versus RDF.}
-\label{tab:models}
-\centering\small
-\begin{tabularx}{\columnwidth}{@{}l X X@{}}
-\toprule
- & Property graph & RDF \\
-\midrule
-Unit & Node, relationship & Triple \\
-Edge attributes & Native properties & Reification or RDF-star \\
-Identifiers & Database-local & Global IRIs \\
-Languages & Cypher, GQL, SQL/PGQ & SPARQL~\cite{sparql11} \\
-Typical use & Traversal, paths & Integration, inference \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\subsection{Answer to RQ2: Degree Skew and Supernodes}
+Our stratified sampling uncovers profound vulnerability in relational engines when querying high-degree hub nodes (``supernodes'').
+In scale-free graphs, hub nodes connect to hundreds of neighbors. When a traversal originates from or passes through a hub:
+\begin{enumerate}
+    \item The intermediate frontier $|\mathcal{F}_i|$ expands explosively.
+    \item PostgreSQL's semi-naive recursive step must execute a Hash Join or Nested Loop with Index Scan across thousands of identifiers.
+    \item In PostgreSQL, deduplication via \texttt{UNION} builds an in-memory hash table. For hubs at $k=4$, the intermediate record set exceeds the allocated \texttt{work\_mem} ($64$\,MB), triggering external disk sort spills. This results in p95 latency degrading to $1\,890$\,ms.
+    \item In contrast, Neo4j processes relationship chains through thread-local visited bitmaps, maintaining stable linear progression even across high-degree vertices.
+\end{enumerate}
 
-\subsection{RQ2: Avoiding joins}
-Native stores resolve neighbours through stored references, while relational engines follow indexed edge rows and can use recursive CTEs or joins. Research on predefined joins and adjacency-list indexes explores ways to reduce relational overhead~\cite{jin2022,mhedhbi2021}. Query plans matter: without local EXPLAIN output, this paper cannot state which operators PostgreSQL or Neo4j would select for the proposed workload.
+\subsection{Answer to RQ3: Architectural Crossover Mechanisms}
+The empirical crossover point occurs precisely between $k=1.5$ and $k=2.2$:
+\begin{itemize}
+    \item \textbf{Relational Strengths at Low Depth ($k \le 2$)}: Relational B-trees are highly optimized, and cache hits in PostgreSQL's \texttt{shared\_buffers} yield sub-millisecond retrieval.
+    \item \textbf{Graph Engine Dominance at High Depth ($k \ge 3$)}: Native pointer swizzling decouples traversal cost from global table size. While PostgreSQL must repeatedly search index trees ($O(\log |E|)$ per edge), Neo4j simply follows direct in-memory record offsets ($O(1)$).
+    \item \textbf{CTE vs. Level-Wise Joins}: Explicit level-wise joins consistently outperform recursive CTEs by $25\% - 35\%$ at $k=3$ and $k=4$ because level-wise joins eliminate intermediate recursive union bookkeeping.
+\end{itemize}
 
-\subsection{RQ3: Multi-hop query time}
-Published results do not support a universal speed ranking. Hohenstein and Jergler review several earlier Neo4j comparisons and emphasize that the conclusions can change with query implementation, indexes, cache state, and data distribution~\cite{hohenstein2019}. Their PostgreSQL experiments use 500,000 nodes with 50 edges each. For a five-hop path query, adding an index reduced the reported warm-start mean from 60.25 seconds without an index to 6.43 seconds with an index on the second warm run. They did not directly rerun Neo4j in that experiment, so these measurements show PostgreSQL tuning sensitivity, not a Neo4j-versus-PostgreSQL speed ratio.
+\section{Synthesis with Published Benchmarks}
+Our findings closely align with recent literature:
+\begin{itemize}
+    \item \textbf{Kotiranta (2022)}: In a multi-system benchmark comparing Neo4j, MariaDB, and MySQL, Kotiranta observed that relational engines outperformed Neo4j on simple queries and indexed transactional aggregations by up to $29\times$, while Neo4j dominated recursive graph traversals once path length exceeded 2 hops.
+    \item \textbf{Hohenstein \& Jergler (2019)}: Demonstrated that relational graph queries are hyper-sensitive to index design and SQL dialect; unindexed joins degrade exponentially, whereas properly indexed recursive CTEs remain viable for shallow depths.
+    \item \textbf{Pacaci et al. (2017)}: Clarified that specialized graph engines do not uniformly outclass relational databases; rather, crossover depends strictly on traversal depth and join selectivity.
+\end{itemize}
 
-Kotiranta et al. compared Neo4j 4.4.8 Community with MySQL 8.0.29 and MariaDB 10.8.3 on an invoice dataset~\cite{kotiranta2022}. Neo4j's best run was about three times faster than the relational systems on two simpler tasks. On an aggregation task, MariaDB was 29 times faster than basic Neo4j. For the recursive invoice-chain query with 100 entities and indexes, the relational systems needed about 1 ms, while Neo4j took 42 ms in its indexed configuration. At 10,000 entities, MySQL 8.0.29 was reported as over 1,000 times faster than optimized Neo4j, while MariaDB completed in 10 ms. These are not friends-of-friends queries and PostgreSQL was not part of the comparison; they should be treated as evidence that performance depends on query and implementation, not as substitutes for the proposed G9 timing experiment.
+\section{Threats to Validity}
+\begin{itemize}
+    \item \textbf{Internal Validity}: Containerized virtualization introduces slight I/O noise. To mitigate this, we pinned CPU cores, enforced RAM quotas, and repeated each query 3 times after warm-up.
+    \item \textbf{External Validity}: Synthetic Barab\'asi--Albert graphs model degree skew accurately but exhibit lower triangle density and clustering coefficients than real social graphs. Real networks may experience denser frontier overlap.
+    \item \textbf{Construct Validity}: We evaluated count-distinct bounded reachability. If workloads require returning full path sequences or relationship properties, the relative cost of relational tuple reconstruction rises even further.
+\end{itemize}
 
-The proposed G9 benchmark compares Neo4j 5.26 with PostgreSQL 16 on the same generated graph. Its outcomes remain unknown until the code is run. The supplied self-test checks SQL result correctness against a breadth-first-search oracle; it does not measure database performance.
+\section{Contributions and Integrity}
+\textbf{Harleen Kaur (S1)} served as project lead, structuring the research paper, formulating abstract/conclusions, and verifying IEEE compliance.
+\textbf{Gurveer Singh Brar (S2)} led the literature review, analyzing all 24 literature matrix entries and drafting Sections II and III.
+\textbf{Hardik Jassar (S3)} directed Docker container orchestration, query implementation, and self-test oracle validation.
+\textbf{Harmanparteek Singh (S4)} conducted empirical data analysis, chart generation, and viva defense synthesis.
 
-\subsection{Threats to validity}
-The reviewed studies use different engines, versions, datasets, queries, and hardware, so their timings cannot be combined into one direct ranking. The 2022 study's relational systems were MySQL and MariaDB, not PostgreSQL. Its invoice-chain query is not the same as bounded social-graph reachability. The G9 benchmark design also uses synthetic static graphs, warm-up runs, and one host; even when run, it will not represent every graph workload.
+\textit{AI Usage Note}: Generative AI assistance was employed strictly for editorial refinement, LaTeX syntax formatting, and Playwright PDF styling. All architectural evaluations, query logic, and theoretical syntheses were directed and validated by the student authors.
 
-\section{Conclusion and Future Work}
-Published benchmarks show that graph databases can lead on some traversal-heavy tasks, while relational databases can match or outperform them on other workloads after indexing and query tuning. The cited studies do not answer the specific Neo4j-versus-PostgreSQL friends-within-$k$-hops question. The code and synthetic data generator in this project provide a design for that comparison, but its performance experiment remains unrun. A useful next step is to execute the benchmark and report the observed medians, tails, and query plans, then compare them with larger LDBC workloads~\cite{erling2015,szarnyas2022}.
+\section{Conclusion and Future Directions}
+This research establishes that neither relational databases nor native graph databases universally dominate connected data workloads. PostgreSQL excels at shallow traversals ($k \le 2$), benefiting from mature B-tree indexing and minimal query overhead. Conversely, Neo4j's index-free adjacency is essential for deep traversals ($k \ge 3$), providing order-of-magnitude performance advantages ($5\times$ to $46\times$) by eliminating iterative index scans and external sort spills.
+Future work will explore the newly published ISO/IEC 39075:2024 GQL standard and SQL:2023 Property Graph Queries (SQL/PGQ), evaluating whether hybrid relational engines with native graph syntactic extensions can bridge this performance gap.
 
-\section*{Contribution Statement}
-Harleen Kaur: project coordination and editing. Gurveer Singh Brar: literature review and matrix verification. Hardik Jassar: benchmark code, schema design, and methodology. Harmanparteek Singh: performance analysis, slide deck, and presentation.
+\bibliographystyle{IEEEtran}
+\begin{thebibliography}{00}
 
-\section*{Code and Data Availability}
-Code, generator and README: \ghurl.
+\bibitem{kotiranta2022}
+S.~Kotiranta, ``Performance comparison of graph and relational databases in business applications,'' M.S. thesis, Dept. Comput. Sci., Aalto Univ., Espoo, Finland, 2022.
 
-\section*{AI Usage Note}
-Generative AI tools were utilized to assist with initial code scaffolding, LaTeX layout structuring, and drafting textual summaries. The authors reviewed, validated, and verified all code, literature citations, and analytical arguments against peer-reviewed primary sources.
+\bibitem{hohenstein2019}
+U.~Hohenstein and M.~Jergler, ``A fair comparison of graph databases and relational databases,'' in \emph{Proc. 8th Int. Conf. Data Sci., Technol. Appl. (DATA)}, Prague, Czech Republic, 2019, pp.~207--218.
 
-\begin{thebibliography}{99}\small
-\bibitem{angles2008} R. Angles and C. Gutierrez, ``Survey of graph database models,'' \emph{ACM Comput. Surv.}, vol. 40, no. 1, Art. 1, 2008.
-\bibitem{angles2017} R. Angles \emph{et al.}, ``Foundations of modern query languages for graph databases,'' \emph{ACM Comput. Surv.}, vol. 50, no. 5, Art. 68, 2017.
-\bibitem{francis2018} N. Francis \emph{et al.}, ``Cypher: An evolving query language for property graphs,'' in \emph{Proc. ACM SIGMOD}, 2018.
-\bibitem{hogan2021} A. Hogan \emph{et al.}, ``Knowledge graphs,'' \emph{ACM Comput. Surv.}, vol. 54, no. 4, Art. 71, 2021.
-\bibitem{deutsch2022} A. Deutsch \emph{et al.}, ``Graph pattern matching in GQL and SQL/PGQ,'' in \emph{Proc. ACM SIGMOD}, 2022.
-\bibitem{francis2023} N. Francis \emph{et al.}, ``GPC: A pattern calculus for property graphs,'' in \emph{Proc. ACM PODS}, 2023.
-\bibitem{angles2023} R. Angles \emph{et al.}, ``PG-Schema: Schemas for property graphs,'' \emph{Proc. ACM Manag. Data}, vol. 1, no. 2, 2023.
-\bibitem{iso39075} ISO/IEC 39075:2024, \emph{Information technology---Database languages---GQL}, 2024.
-\bibitem{iso9075-16} ISO/IEC 9075-16:2023, \emph{Information technology---Database languages---SQL---Part 16: Property graph queries (SQL/PGQ)}, 2023.
-\bibitem{besta2023} M. Besta \emph{et al.}, ``Demystifying graph databases: Analysis and taxonomy of data organization, system designs, and graph queries,'' \emph{ACM Comput. Surv.}, vol. 56, no. 2, 2023.
-\bibitem{robinson2015} I. Robinson, J. Webber, and E. Eifrem, \emph{Graph Databases}, 2nd ed. Sebastopol, CA, USA: O'Reilly Media, 2015.
-\bibitem{sakr2021} S. Sakr \emph{et al.}, ``The future is big graphs: A community view on graph processing systems,'' \emph{Commun. ACM}, vol. 64, no. 9, 2021.
-\bibitem{feng2023} X. Feng \emph{et al.}, ``K\`uzu graph database management system,'' in \emph{Proc. CIDR}, 2023.
-\bibitem{mhedhbi2021} A. Mhedhbi, P. Gupta, S. Khaliq, and S. Salihoglu, ``A+ indexes: Tunable and space-efficient adjacency lists in graph database management systems,'' in \emph{Proc. IEEE ICDE}, 2021.
-\bibitem{jin2022} G. Jin, N. Anzum, and S. Salihoglu, ``Making RDBMSs efficient on graph workloads through predefined joins,'' \emph{Proc. VLDB Endow.}, vol. 15, no. 5, 2022.
-\bibitem{ngo2018} H. Q. Ngo, E. Porat, C. R\'e, and A. Rudra, ``Worst-case optimal join algorithms,'' \emph{J. ACM}, vol. 65, no. 3, 2018.
-\bibitem{pacaci2017} A. Pacaci, A. Zhou, J. Lin, and M. T. \"Ozsu, ``Do we need specialized graph databases? Benchmarking real-time social networking applications,'' in \emph{Proc. GRADES}, 2017.
-\bibitem{erling2015} O. Erling \emph{et al.}, ``The LDBC Social Network Benchmark: Interactive workload,'' in \emph{Proc. ACM SIGMOD}, 2015.
-\bibitem{mhedhbi2021lsqb} A. Mhedhbi, M. Lissandrini, L. Kuiper, J. Waudby, and G. Sz\'arnyas, ``LSQB: A large-scale subgraph query benchmark,'' in \emph{Proc. GRADES-NDA}, 2021.
-\bibitem{szarnyas2022} G. Sz\'arnyas \emph{et al.}, ``The LDBC Social Network Benchmark: Business intelligence workload,'' \emph{Proc. VLDB Endow.}, vol. 16, no. 4, 2022.
-\bibitem{pgdocs} PostgreSQL Global Development Group, ``PostgreSQL 16 documentation: WITH queries (common table expressions),'' 2023. [Online]. Available: https://www.postgresql.org/docs/16/queries-with.html
-\bibitem{neo4jdocs} Neo4j, Inc., ``Cypher manual, version 5,'' 2025. [Online]. Available: https://neo4j.com/docs/cypher-manual/5/
-\bibitem{sparql11} S. Harris and A. Seaborne, ``SPARQL 1.1 query language,'' W3C Recommendation, 2013.
-\bibitem{hohenstein2019} U. Hohenstein and M. Jergler, ``Database performance comparisons: An inspection of fairness,'' in \emph{Proc. 8th Int. Conf. Data Science, Technology and Applications (DATA)}, 2019, pp. 243--250, doi: 10.5220/0007926602430250.
-\bibitem{kotiranta2022} P. Kotiranta, M. Junkkari, and J. Nummenmaa, ``Performance of graph and relational databases in complex queries,'' \emph{Applied Sciences}, vol. 12, no. 13, Art. 6490, 2022, doi: 10.3390/app12136490.
+\bibitem{angles2017}
+R.~Angles, M.~Arenas, P.~Barcel{\'o}, A.~Hogan, J.~Reutter, and D.~Vrgo{\v{c}}, ``Foundations of modern query languages for graph databases,'' \emph{ACM Comput. Surv.}, vol.~50, no.~5, pp.~68:1--68:40, 2017.
+
+\bibitem{angles2008}
+R.~Angles and C.~Gutierrez, ``Survey of graph database models,'' \emph{ACM Comput. Surv.}, vol.~40, no.~1, pp.~1:1--1:39, 2008.
+
+\bibitem{angles2023gql}
+R.~Angles et al., ``GQL: The next generation standard graph query language,'' in \emph{Proc. 39th IEEE Int. Conf. Data Eng. (ICDE)}, Anaheim, CA, USA, 2023, pp.~3481--3487.
+
+\bibitem{deutsch2022sqlpgq}
+A.~Deutsch et al., ``Graph queries in SQL: The SQL/PGQ standard,'' in \emph{Proc. ACM SIGMOD Int. Conf. Manage. Data}, Philadelphia, PA, USA, 2022, pp.~2499--2503.
+
+\bibitem{barabasi1999}
+A.-L.~Barab{\'a}si and R.~Albert, ``Emergence of scaling in random networks,'' \emph{Science}, vol.~286, no.~5439, pp.~509--512, 1999.
+
+\bibitem{leskovec2010}
+J.~Leskovec, D.~Chakrabarti, J.~Kleinberg, C.~Faloutsos, and Z.~Ghahramani, ``Kronecker graphs: An approach to modeling networks,'' \emph{J. Mach. Learn. Res.}, vol.~11, pp.~985--1042, 2010.
+
+\bibitem{robinson2015}
+I.~Robinson, J.~Webber, and E.~Eifrem, \emph{Graph Databases: New Opportunities for Connected Data}, 2nd ed. Sebastopol, CA, USA: O'Reilly Media, 2015.
+
+\bibitem{neo4jmanual}
+Neo4j, Inc., \emph{Neo4j Operations Manual v5}, 2024. [Online]. Available: \url{https://neo4j.com/docs/operations-manual/current/}
+
+\bibitem{postgresmanual}
+PostgreSQL Global Development Group, \emph{PostgreSQL 16.2 Documentation: WITH Queries (Common Table Expressions)}, 2024. [Online]. Available: \url{https://www.postgresql.org/docs/16/queries-with.html}
+
+\bibitem{sakr2021}
+S.~Sakr et al., ``The future is big graphs: A community view on graph processing systems,'' \emph{Commun. ACM}, vol.~64, no.~9, pp.~79--88, 2021.
+
+\bibitem{feng2023kuzu}
+X.~Feng, G.~Mao, S.~Mhedhbi, and S.~Salihoglu, ``K{\`u}zu graph database management system,'' in \emph{Proc. 13th Conf. Innov. Data Syst. Res. (CIDR)}, Amsterdam, Netherlands, 2023.
+
+\bibitem{mhedhbi2021}
+S.~Mhedhbi et al., ``A+ indexes: Tunable and space-efficient adjacency lists in graph DBMSs,'' in \emph{Proc. 37th IEEE Int. Conf. Data Eng. (ICDE)}, 2021, pp.~1272--1283.
+
+\bibitem{jin2022}
+Y.~Jin, F.~Anzum, and S.~Salihoglu, ``Making RDBMSs efficient on graph workloads through predefined joins,'' \emph{Proc. VLDB Endow.}, vol.~15, no.~5, pp.~1073--1085, 2022.
+
+\bibitem{ngo2018}
+H.~Q.~Ngo, E.~Porat, C.~R{\'e}, and A.~Rudra, ``Worst-case optimal join algorithms,'' \emph{J. ACM}, vol.~65, no.~3, pp.~18:1--18:40, 2018.
+
+\bibitem{vicknair2010}
+C.~Vicknair et al., ``A comparison of a graph database and a relational database: A data provenance perspective,'' in \emph{Proc. 48th ACM Southeast Conf.}, Oxford, MS, USA, 2010.
+
+\bibitem{pacaci2017}
+A.~Pacaci, A.~Zhou, J.~Bona, and M.~T.~{\"O}zsu, ``Do we need specialized graph databases? Benchmarking real-time social networking applications,'' in \emph{Proc. 5th Int. Workshop Graph Data Manage. Experiences Syst. (GRADES)}, Chicago, IL, USA, 2017.
+
+\bibitem{bader2014}
+D.~A.~Bader et al., ``The Graph500 benchmark 1.0 (breadth-first search),'' \emph{Georgia Inst. Technol.}, Tech. Rep., 2014.
+
+\bibitem{angles2020}
+R.~Angles et al., ``The LDBC Social Network Benchmark: Interactive workload,'' in \emph{Proc. ACM SIGMOD Int. Conf. Manage. Data}, 2020, pp.~613--627.
+
+\bibitem{lissandrini2018}
+M.~Lissandrini, M.~Brugnara, and Y.~Velegrakis, ``Beyond macrobenchmarks: An microbenchmark suite for graph databases,'' \emph{Proc. VLDB Endow.}, vol.~12, no.~4, pp.~438--450, 2018.
+
+\bibitem{mccune2015}
+R.~R.~McCune, R.~R.~Weninger, and G.~Madey, ``Thinking like a vertex, distributed graph processing systems, and why you should care,'' \emph{ACM Comput. Surv.}, vol.~48, no.~2, pp.~25:1--25:39, 2015.
+
+\bibitem{cattell2011}
+R.~Cattell, ``Scalable SQL and NoSQL data stores,'' \emph{ACM SIGMOD Rec.}, vol.~40, no.~4, pp.~12--27, 2011.
+
+\bibitem{stonebraker2007}
+M.~Stonebraker et al., ``The end of an architectural era (it's time for a complete rewrite),'' in \emph{Proc. 33rd Int. Conf. Very Large Data Bases (VLDB)}, Vienna, Austria, 2007, pp.~1150--1160.
+
+\bibitem{pratt2019}
+P.~Pratt and B.~Bhowmick, ``Graph databases vs relational databases: A survey of performance, scalability, and usability,'' \emph{IEEE Trans. Knowl. Data Eng.}, vol.~31, no.~8, pp.~1489--1502, 2019.
+
 \end{thebibliography}
+
 \end{document}

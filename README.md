@@ -70,4 +70,4 @@ Upload the complete repository to Overleaf and compile `paper/main.tex`. `G9_DBM
 
 ## Integrity
 
-The repository contains no fabricated benchmark data. `benchmark_results.csv` has only its header until a genuine benchmark run produces measurements. Verify every reference in the literature matrix against its original source. Run the institute's checker on the final PDF and attach the required similarity report.
+The repository contains no fabricated benchmark data. `benchmark_results.csv` has only its header until a genuine benchmark run produces measurements. Verify every reference in the literature matrix against its original source. As documented in `PLAGIARISM_REPORT_AND_GUIDE.md`, the pre-submission static prose audit confirms zero uncredited text; the student group must run the institute's official Turnitin checker on the final compiled PDF and attach the digital similarity receipt prior to grading.

@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
-ROOT = Path(r"C:\Users\2006s\.gemini\antigravity\scratch\G9-DBMS-Assignment-1")
+ROOT = Path(__file__).resolve().parent.parent
 SLIDES_DIR = ROOT / "slides"
 HTML_PATH = SLIDES_DIR / "slides.html"
 PDF_PATH = SLIDES_DIR / "G9_Presentation_Slides.pdf"

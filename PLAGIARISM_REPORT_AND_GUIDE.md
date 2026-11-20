@@ -1,17 +1,44 @@
-# Plagiarism & Turnitin Compliance Report and Protocol
-## G9 DBMS Assignment 1 — Research Paper Pre-Flight Verification
+# Plagiarism Compliance Protocol & Pre-Submission Prose Audit
+## G9 DBMS Assignment 1 — Deliverable 4 (Integrity & Turnitin Verification)
 
 **Manuscript Title:** *Graph Traversal and Relational Recursion: What Published Benchmarks Show*  
 **Authors:** Harleen Kaur, Gurveer Singh Brar, Hardik Jassar, Harmanparteek Singh  
 **Affiliation:** Department of Information Technology, Dr. B. R. Ambedkar National Institute of Technology Jalandhar  
 **Faculty Mentor:** Dr. Vijay Kumar  
-**Target Submission File:** `paper/main.tex` (Compiled IEEE 2-Column PDF)  
+**Target Submission File:** paper/main.tex (Compiled IEEE 2-Column PDF)  
 **Verification Date:** November 20, 2026  
-**Document Status:** **PASSED PRE-FLIGHT COMPLIANCE AUDIT (Estimated Net Similarity: 2% – 4% < 10% Threshold)**
+**Document Status:** **PRE-SUBMISSION PROSE AUDIT COMPLETE (Static Paraphrase Audit: PASS; Mandatory Action: Attach Official Institute Turnitin Report Below)**
+
+> [!IMPORTANT]
+> **Action Required for Final Submission (Checklist Item 7):**
+> This document details the complete static prose audit, paraphrase verification, and submission settings protocol. The student group must run the final compiled paper PDF through the NIT Jalandhar Turnitin / Feedback Studio portal and attach the official Turnitin Digital Receipt and Similarity Percentage to Section 1.1 below prior to final grading.
 
 ---
 
-## 1. Executive Summary
+## 1. Executive Summary & Official Attachment Specification
+
+### 1.1 Official Institute Turnitin Report Attachment Slot
+*(To be finalized upon generating the official digital report from the NITJ library/department portal)*
+
+`	ext
+================================================================================
+           NIT JALANDHAR TURNITIN OFFICIAL REPORT VERIFICATION
+================================================================================
+Turnitin Paper ID / Submission ID : [e.g., 2291840291]
+Submission Timestamp              : [YYYY-MM-DD HH:MM:SS IST]
+Target Document Evaluated          : G9_DBMS_Research_Paper.pdf
+Final Similarity Index Recorded   : ______ %  (Requirement: < 10.0%)
+Similarity Breakdown:
+  - Internet Sources              : ______ %
+  - Publications                  : ______ %
+  - Student Papers                : ______ %
+Exclusions Applied (Mandatory):
+  [X] Exclude Bibliography / References (Checked - ON)
+  [X] Exclude Quoted Material (Checked - ON)
+  [X] Exclude Matches < 10 Words / < 1% (Checked - ON)
+Instructor / Coordinator Signoff  : ___________________________
+================================================================================
+`
 
 As required by the DBMS Assignment 1 Submission Checklist (Item 7: *"Plagiarism report < 10% (excluding references) from the institute's tool; attach it"*), this document provides:
 1. The **exact operational protocol** for submitting the final compiled PDF to Turnitin/iThenticate to ensure compliance with the strictly enforced $< 10\%$ similarity ceiling.

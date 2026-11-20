@@ -3,7 +3,7 @@ import asyncio, pathlib, shutil, io
 from playwright.async_api import async_playwright
 from pypdf import PdfReader, PdfWriter
 
-REPO = pathlib.Path(r"C:\Users\2006s\.gemini\antigravity\scratch\G9-DBMS-Assignment-1")
+REPO = pathlib.Path(__file__).resolve().parent
 SRC = REPO / "slides" / "slides.html"
 OUT = REPO / "slides" / "G9_Presentation_Slides.pdf"
 
